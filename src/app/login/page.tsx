@@ -2,7 +2,9 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ThemeProvider } from "next-themes";
 import { authenticateUser } from "../../utils/authData";
+import ToggleSwitch from "../../components/ToggleSwitch";
 
 const NumericInput = ({ value, onChange, placeholder, label }) => {
 	const inputRefs = useRef([]);
@@ -56,7 +58,7 @@ const NumericInput = ({ value, onChange, placeholder, label }) => {
 	);
 };
 
-export default function LoginPage() {
+function LoginPage() {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
@@ -69,7 +71,7 @@ export default function LoginPage() {
 				router.push("/");
 			} else {
 				setError("Username atau password salah");
-				setTimeout(() => setError(""), 3000); // Hilangkan pesan error setelah 3 detik
+				setTimeout(() => setError(""), 3000);
 			}
 		}
 	}, [username, password, router]);
@@ -82,47 +84,53 @@ export default function LoginPage() {
 	}, [error]);
 
 	return (
-		<div className='flex flex-col min-h-screen items-center justify-center'>
-			<div className='flex min-h-screen flex-col items-center justify-center py-2'>
-				<main className='flex w-full flex-1 flex-col items-center justify-center px-4 sm:px-20 text-center'>
-					<h1 className='text-4xl font-bold mb-8'>
-						Login ke{" "}
-						<a className='text-blue-600' href='/'>
-							Aplikasi Voting
-						</a>
-					</h1>
-
-					<div className='w-full max-w-xs'>
-						<NumericInput
-							value={username}
-							onChange={setUsername}
-							placeholder='0000'
-							label='Username'
-						/>
-						<NumericInput
-							value={password}
-							onChange={setPassword}
-							placeholder='****'
-							label='Password'
-						/>
-						<div className='relative h-12 mt-6'>
-							{error && (
-								<div
-									className='absolute w-full transform transition-all duration-300 ease-in-out'
-									style={{
-										top: error ? "0" : "-100%",
-										opacity: error ? "1" : "0",
-									}}
-								>
-									<div className='bg-red-500 text-white py-3 px-4 rounded-md'>
-										{error}
-									</div>
-								</div>
-							)}
-						</div>
-					</div>
-				</main>
+		<div className='flex flex-col min-h-screen items-center justify-center bg-white dark:bg-gray-900 transition-colors duration-300'>
+			<div className='absolute top-4 right-4'>
+				<ToggleSwitch />
 			</div>
+			<main className='flex w-full flex-1 flex-col items-center justify-center px-4 sm:px-20 text-center'>
+				<h1 className='text-4xl font-bold mb-8 text-gray-900 dark:text-white'>
+					Login ke Aplikasi Voting
+				</h1>
+
+				<div className='w-full max-w-xs'>
+					<NumericInput
+						value={username}
+						onChange={setUsername}
+						placeholder='0000'
+						label='Username'
+					/>
+					<NumericInput
+						value={password}
+						onChange={setPassword}
+						placeholder='****'
+						label='Password'
+					/>
+					<div className='relative h-12 mt-6'>
+						{error && (
+							<div
+								className='absolute w-full transform transition-all duration-300 ease-in-out'
+								style={{
+									top: error ? "0" : "-100%",
+									opacity: error ? "1" : "0",
+								}}
+							>
+								<div className='bg-red-500 text-white py-3 px-4 rounded-md'>
+									{error}
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+			</main>
 		</div>
+	);
+}
+
+export default function ThemedLoginPage() {
+	return (
+		<ThemeProvider attribute='class'>
+			<LoginPage />
+		</ThemeProvider>
 	);
 }
