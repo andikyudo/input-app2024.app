@@ -31,7 +31,7 @@ const NumericInput = ({ value, onChange, placeholder, label }) => {
 
 	return (
 		<div className='mb-6'>
-			<label className='block text-sm font-medium text-gray-700 mb-2'>
+			<label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
 				{label}
 			</label>
 			<div className='flex justify-center space-x-4 px-4'>
@@ -44,10 +44,10 @@ const NumericInput = ({ value, onChange, placeholder, label }) => {
 							value={value[index] || ""}
 							onChange={(e) => handleChange(index, e)}
 							onKeyDown={(e) => handleKeyDown(index, e)}
-							className='w-10 h-12 text-center bg-transparent border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none text-xl'
+							className='w-10 h-12 text-center bg-transparent border-b-2 border-gray-400 dark:border-gray-600 focus:border-blue-500 focus:outline-none text-xl text-gray-900 dark:text-white'
 						/>
 						{!value[index] && (
-							<span className='absolute inset-0 flex items-center justify-center text-gray-400 pointer-events-none'>
+							<span className='absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-600 pointer-events-none'>
 								{placeholder[index]}
 							</span>
 						)}
@@ -84,7 +84,7 @@ function LoginPage() {
 	}, [error]);
 
 	return (
-		<div className='flex flex-col min-h-screen items-center justify-center bg-white dark:bg-gray-900 transition-colors duration-300'>
+		<div className='flex flex-col min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900 transition-colors duration-300'>
 			<div className='absolute top-4 right-4'>
 				<ToggleSwitch />
 			</div>
