@@ -59,6 +59,7 @@ const NumericInput = ({ value, onChange, placeholder, label }) => {
 export default function LoginPage() {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
+	const [error, setError] = useState("");
 	const router = useRouter();
 
 	useEffect(() => {
@@ -66,17 +67,19 @@ export default function LoginPage() {
 			if (authenticateUser(username, password)) {
 				console.log("Login berhasil:", username);
 				router.push("/");
+			} else {
+				setError("Username atau password salah");
+				setTimeout(() => setError(""), 3000); // Hilangkan pesan error setelah 3 detik
 			}
 		}
 	}, [username, password, router]);
 
-	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		if (!authenticateUser(username, password)) {
-			console.log("Login gagal");
-			alert("Username atau password salah");
+	useEffect(() => {
+		if (error) {
+			const timer = setTimeout(() => setError(""), 3000);
+			return () => clearTimeout(timer);
 		}
-	};
+	}, [error]);
 
 	return (
 		<div className='flex min-h-screen flex-col items-center justify-center py-2'>
@@ -88,7 +91,7 @@ export default function LoginPage() {
 					</a>
 				</h1>
 
-				<form onSubmit={handleSubmit} className='w-full max-w-xs'>
+				<div className='w-full max-w-xs'>
 					<NumericInput
 						value={username}
 						onChange={setUsername}
@@ -101,13 +104,22 @@ export default function LoginPage() {
 						placeholder='****'
 						label='Password'
 					/>
-					<button
-						type='submit'
-						className='mt-6 w-full rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm h-12 px-4'
-					>
-						Login
-					</button>
-				</form>
+					<div className='relative h-12 mt-6'>
+						{error && (
+							<div
+								className='absolute w-full transform transition-all duration-300 ease-in-out'
+								style={{
+									top: error ? "0" : "-100%",
+									opacity: error ? "1" : "0",
+								}}
+							>
+								<div className='bg-red-500 text-white py-3 px-4 rounded-md'>
+									{error}
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
 			</main>
 
 			<footer className='flex h-24 w-full items-center justify-center border-t'></footer>
