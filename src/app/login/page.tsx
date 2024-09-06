@@ -82,47 +82,47 @@ export default function LoginPage() {
 	}, [error]);
 
 	return (
-		<div className='flex min-h-screen flex-col items-center justify-center py-2'>
-			<main className='flex w-full flex-1 flex-col items-center justify-center px-4 sm:px-20 text-center'>
-				<h1 className='text-4xl font-bold mb-8'>
-					Login ke{" "}
-					<a className='text-blue-600' href='/'>
-						Aplikasi Voting
-					</a>
-				</h1>
+		<div className='flex flex-col min-h-screen items-center justify-center'>
+			<div className='flex min-h-screen flex-col items-center justify-center py-2'>
+				<main className='flex w-full flex-1 flex-col items-center justify-center px-4 sm:px-20 text-center'>
+					<h1 className='text-4xl font-bold mb-8'>
+						Login ke{" "}
+						<a className='text-blue-600' href='/'>
+							Aplikasi Voting
+						</a>
+					</h1>
 
-				<div className='w-full max-w-xs'>
-					<NumericInput
-						value={username}
-						onChange={setUsername}
-						placeholder='0000'
-						label='Username'
-					/>
-					<NumericInput
-						value={password}
-						onChange={setPassword}
-						placeholder='****'
-						label='Password'
-					/>
-					<div className='relative h-12 mt-6'>
-						{error && (
-							<div
-								className='absolute w-full transform transition-all duration-300 ease-in-out'
-								style={{
-									top: error ? "0" : "-100%",
-									opacity: error ? "1" : "0",
-								}}
-							>
-								<div className='bg-red-500 text-white py-3 px-4 rounded-md'>
-									{error}
+					<div className='w-full max-w-xs'>
+						<NumericInput
+							value={username}
+							onChange={setUsername}
+							placeholder='0000'
+							label='Username'
+						/>
+						<NumericInput
+							value={password}
+							onChange={setPassword}
+							placeholder='****'
+							label='Password'
+						/>
+						<div className='relative h-12 mt-6'>
+							{error && (
+								<div
+									className='absolute w-full transform transition-all duration-300 ease-in-out'
+									style={{
+										top: error ? "0" : "-100%",
+										opacity: error ? "1" : "0",
+									}}
+								>
+									<div className='bg-red-500 text-white py-3 px-4 rounded-md'>
+										{error}
+									</div>
 								</div>
-							</div>
-						)}
+							)}
+						</div>
 					</div>
-				</div>
-			</main>
-
-			<footer className='flex h-24 w-full items-center justify-center border-t'></footer>
+				</main>
+			</div>
 		</div>
 	);
 }
