@@ -1,58 +1,109 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { authenticateUser } from "../../utils/authData";
+
+const NumericInput = ({ value, onChange, placeholder, label }) => {
+	const inputRefs = useRef([]);
+
+	useEffect(() => {
+		inputRefs.current = inputRefs.current.slice(0, 4);
+	}, []);
+
+	const handleChange = (index, e) => {
+		const newValue = [...value];
+		newValue[index] = e.target.value;
+		onChange(newValue.join(""));
+
+		if (e.target.value && index < 3) {
+			inputRefs.current[index + 1].focus();
+		}
+	};
+
+	const handleKeyDown = (index, e) => {
+		if (e.key === "Backspace" && !value[index] && index > 0) {
+			inputRefs.current[index - 1].focus();
+		}
+	};
+
+	return (
+		<div className='mb-6'>
+			<label className='block text-sm font-medium text-gray-700 mb-2'>
+				{label}
+			</label>
+			<div className='flex justify-center space-x-4 px-4'>
+				{[0, 1, 2, 3].map((index) => (
+					<div key={index} className='relative'>
+						<input
+							ref={(el) => (inputRefs.current[index] = el)}
+							type='text'
+							maxLength={1}
+							value={value[index] || ""}
+							onChange={(e) => handleChange(index, e)}
+							onKeyDown={(e) => handleKeyDown(index, e)}
+							className='w-10 h-12 text-center bg-transparent border-b-2 border-gray-300 focus:border-blue-500 focus:outline-none text-xl'
+						/>
+						{!value[index] && (
+							<span className='absolute inset-0 flex items-center justify-center text-gray-400 pointer-events-none'>
+								{placeholder[index]}
+							</span>
+						)}
+					</div>
+				))}
+			</div>
+		</div>
+	);
+};
 
 export default function LoginPage() {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const router = useRouter();
 
+	useEffect(() => {
+		if (username.length === 4 && password.length === 4) {
+			if (authenticateUser(username, password)) {
+				console.log("Login berhasil:", username);
+				router.push("/");
+			}
+		}
+	}, [username, password, router]);
+
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		// Di sini Anda akan menambahkan logika autentikasi
-		console.log("Login attempt:", username, password);
-		// Untuk sementara, kita akan langsung redirect ke halaman utama
-		router.push("/");
+		if (!authenticateUser(username, password)) {
+			console.log("Login gagal");
+			alert("Username atau password salah");
+		}
 	};
 
 	return (
 		<div className='flex min-h-screen flex-col items-center justify-center py-2'>
-			<main className='flex w-full flex-1 flex-col items-center justify-center px-20 text-center'>
-				<h1 className='text-6xl font-bold'>
+			<main className='flex w-full flex-1 flex-col items-center justify-center px-4 sm:px-20 text-center'>
+				<h1 className='text-4xl font-bold mb-8'>
 					Login ke{" "}
 					<a className='text-blue-600' href='/'>
 						Aplikasi Voting
 					</a>
 				</h1>
 
-				<p className='mt-3 text-2xl'>
-					Masukkan kredensial Anda untuk mengakses sistem.
-				</p>
-
-				<form
-					onSubmit={handleSubmit}
-					className='mt-6 flex w-full max-w-xs flex-col'
-				>
-					<input
-						type='text'
+				<form onSubmit={handleSubmit} className='w-full max-w-xs'>
+					<NumericInput
 						value={username}
-						onChange={(e) => setUsername(e.target.value)}
-						placeholder='Username'
-						className='mb-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none'
-						required
+						onChange={setUsername}
+						placeholder='0000'
+						label='Username'
 					/>
-					<input
-						type='password'
+					<NumericInput
 						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-						placeholder='Password'
-						className='mb-4 rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none'
-						required
+						onChange={setPassword}
+						placeholder='****'
+						label='Password'
 					/>
 					<button
 						type='submit'
-						className='rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5'
+						className='mt-6 w-full rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm h-12 px-4'
 					>
 						Login
 					</button>
