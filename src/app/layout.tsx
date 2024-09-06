@@ -4,8 +4,8 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 
 export const metadata: Metadata = {
-	title: "Aplikasi Voting",
-	description: "Sistem Voting Online",
+	title: "Login - Aplikasi Voting",
+	description: "Login ke sistem voting online",
 };
 
 export default function RootLayout({
