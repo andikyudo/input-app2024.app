@@ -1,12 +1,9 @@
-import type { Metadata } from "next";
+"use client";
+
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
+import { ThemeProvider } from "next-themes";
 import "./globals.css";
-
-export const metadata: Metadata = {
-	title: "Login - Aplikasi Voting",
-	description: "Login ke sistem voting online",
-};
 
 export default function RootLayout({
 	children,
@@ -15,7 +12,9 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang='en' className={`${GeistSans.variable} ${GeistMono.variable}`}>
-			<body className='min-h-screen overflow-hidden'>{children}</body>
+			<body className='min-h-screen'>
+				<ThemeProvider attribute='class'>{children}</ThemeProvider>
+			</body>
 		</html>
 	);
 }

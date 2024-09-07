@@ -68,7 +68,7 @@ function LoginPage() {
 		if (username.length === 4 && password.length === 4) {
 			if (authenticateUser(username, password)) {
 				console.log("Login berhasil:", username);
-				router.push("/");
+				router.push("/input"); // Arahkan ke halaman input setelah login berhasil
 			} else {
 				setError("Username atau password salah");
 				setTimeout(() => setError(""), 3000);
