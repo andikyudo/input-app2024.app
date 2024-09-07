@@ -14,12 +14,15 @@ const NumericInput = ({ value, onChange, placeholder, label }) => {
 	}, []);
 
 	const handleChange = (index, e) => {
-		const newValue = [...value];
-		newValue[index] = e.target.value;
-		onChange(newValue.join(""));
+		const inputValue = e.target.value;
+		if (/^[0-9]$/.test(inputValue) || inputValue === "") {
+			const newValue = [...value];
+			newValue[index] = inputValue;
+			onChange(newValue.join(""));
 
-		if (e.target.value && index < 3) {
-			inputRefs.current[index + 1].focus();
+			if (inputValue && index < 3) {
+				inputRefs.current[index + 1].focus();
+			}
 		}
 	};
 
