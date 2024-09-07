@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useTheme } from "next-themes";
 import ToggleSwitch from "../../components/ToggleSwitch";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const NumericInput = ({ value, onChange, label }) => {
 	const inputRefs = useRef([]);
@@ -79,9 +80,31 @@ const InputPage = () => {
 	const [gubernurCandidates, setGubernurCandidates] = useState(["", "", ""]);
 	const [walikotaCandidates, setWalikotaCandidates] = useState(["", ""]);
 	const [photo, setPhoto] = useState(null);
-
+	const [allData, setAllData] = useState([]);
+	const [editIndex, setEditIndex] = useState(null);
 	const fileInputRef = useRef(null);
 	const cameraInputRef = useRef(null);
+	const router = useRouter();
+	const searchParams = useSearchParams();
+
+	useEffect(() => {
+		const savedData = localStorage.getItem("votingData");
+		if (savedData) {
+			setAllData(JSON.parse(savedData));
+		}
+
+		const editParam = searchParams.get("edit");
+		if (editParam) {
+			const index = parseInt(editParam, 10);
+			setEditIndex(index);
+			const dataToEdit = JSON.parse(savedData)[index];
+			setTps(dataToEdit.tps);
+			setGubernurCandidates(dataToEdit.gubernurCandidates);
+			setWalikotaCandidates(dataToEdit.walikotaCandidates);
+			setPhoto(dataToEdit.photo);
+			setStep("inputData");
+		}
+	}, [searchParams]);
 
 	const handleTpsChange = (e) => {
 		setTps(e.target.value);
@@ -117,19 +140,36 @@ const InputPage = () => {
 	};
 
 	const handleSubmit = () => {
-		console.log("Submitting data:", {
+		const newData = {
 			tps,
 			gubernurCandidates,
 			walikotaCandidates,
-			photo,
-		});
-		// Here you would typically send the data to your backend
-		// After successful submission, reset the form and go back to TPS selection
+			photo: photo ? URL.createObjectURL(photo) : null,
+			timestamp: new Date().toISOString(),
+		};
+
+		let updatedData;
+		if (editIndex !== null) {
+			updatedData = [...allData];
+			updatedData[editIndex] = newData;
+		} else {
+			updatedData = [...allData, newData];
+		}
+
+		setAllData(updatedData);
+		localStorage.setItem("votingData", JSON.stringify(updatedData));
+
+		// Reset form and go back to recap page
 		setTps("");
 		setGubernurCandidates(["", "", ""]);
 		setWalikotaCandidates(["", ""]);
 		setPhoto(null);
-		setStep("selectTPS");
+		setEditIndex(null);
+		router.push("/recap");
+	};
+
+	const handleViewRecap = () => {
+		router.push("/recap");
 	};
 
 	return (
@@ -139,10 +179,10 @@ const InputPage = () => {
 			</div>
 			<main className='flex-1 flex flex-col items-center justify-center px-4 sm:px-20 pt-10 pb-20 overflow-y-auto'>
 				<h1 className='text-4xl font-bold mb-8 text-gray-900 dark:text-white'>
-					Input Data Pemilihan
+					{editIndex !== null ? "Edit Data Pemilihan" : "Input Data Pemilihan"}
 				</h1>
 				<div className='w-full max-w-md'>
-					{step === "selectTPS" && (
+					{step === "selectTPS" && editIndex === null && (
 						<form onSubmit={handleTpsSubmit} className='mb-6'>
 							<label
 								htmlFor='tps'
@@ -172,7 +212,7 @@ const InputPage = () => {
 						</form>
 					)}
 
-					{step === "inputData" && (
+					{(step === "inputData" || editIndex !== null) && (
 						<>
 							<h2 className='text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200'>
 								TPS {tps}
@@ -234,10 +274,19 @@ const InputPage = () => {
 								className='mt-6 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300'
 								onClick={handleSubmit}
 							>
-								Submit dan Kembali ke Pemilihan TPS
+								{editIndex !== null ? "Update Data" : "Submit Data"}
 							</button>
 						</>
 					)}
+
+					<button
+						className='mt-4 w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300'
+						onClick={handleViewRecap}
+					>
+						{step === "selectTPS"
+							? "Lihat Rekapitulasi"
+							: "Kembali ke Rekapitulasi"}
+					</button>
 				</div>
 			</main>
 		</div>
