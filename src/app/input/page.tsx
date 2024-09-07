@@ -79,7 +79,7 @@ const InputPage = () => {
 	const [gubernurCandidates, setGubernurCandidates] = useState(["", "", ""]);
 	const [walikotaCandidates, setWalikotaCandidates] = useState(["", ""]);
 	const [photo, setPhoto] = useState(null);
-	const { theme, setTheme } = useTheme();
+
 	const fileInputRef = useRef(null);
 	const cameraInputRef = useRef(null);
 
@@ -137,7 +137,7 @@ const InputPage = () => {
 			<div className='absolute top-4 right-4'>
 				<ToggleSwitch />
 			</div>
-			<main className='flex-1 flex flex-col items-center justify-start px-4 sm:px-20 pt-10 pb-20 overflow-y-auto'>
+			<main className='flex-1 flex flex-col items-center justify-center px-4 sm:px-20 pt-10 pb-20 overflow-y-auto'>
 				<h1 className='text-4xl font-bold mb-8 text-gray-900 dark:text-white'>
 					Input Data Pemilihan
 				</h1>
