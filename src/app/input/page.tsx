@@ -82,6 +82,7 @@ const InputPage = () => {
 	const [photo, setPhoto] = useState(null);
 	const [allData, setAllData] = useState([]);
 	const [editIndex, setEditIndex] = useState(null);
+	const [existingTPS, setExistingTPS] = useState(new Set());
 	const fileInputRef = useRef(null);
 	const cameraInputRef = useRef(null);
 	const router = useRouter();
@@ -90,7 +91,9 @@ const InputPage = () => {
 	useEffect(() => {
 		const savedData = localStorage.getItem("votingData");
 		if (savedData) {
-			setAllData(JSON.parse(savedData));
+			const parsedData = JSON.parse(savedData);
+			setAllData(parsedData);
+			setExistingTPS(new Set(parsedData.map((item) => item.tps)));
 		}
 
 		const editParam = searchParams.get("edit");
@@ -112,8 +115,10 @@ const InputPage = () => {
 
 	const handleTpsSubmit = (e) => {
 		e.preventDefault();
-		if (tps) {
+		if (tps && !existingTPS.has(tps)) {
 			setStep("inputData");
+		} else if (existingTPS.has(tps)) {
+			alert("TPS ini sudah ada dalam data. Silakan pilih TPS lain.");
 		}
 	};
 
@@ -159,6 +164,9 @@ const InputPage = () => {
 		setAllData(updatedData);
 		localStorage.setItem("votingData", JSON.stringify(updatedData));
 
+		// Update existingTPS
+		setExistingTPS(new Set(updatedData.map((item) => item.tps)));
+
 		// Reset form and go back to recap page
 		setTps("");
 		setGubernurCandidates(["", "", ""]);
@@ -198,7 +206,11 @@ const InputPage = () => {
 							>
 								<option value=''>Pilih TPS</option>
 								{[...Array(900)].map((_, i) => (
-									<option key={i + 1} value={i + 1}>
+									<option
+										key={i + 1}
+										value={i + 1}
+										disabled={existingTPS.has((i + 1).toString())}
+									>
 										{i + 1}
 									</option>
 								))}

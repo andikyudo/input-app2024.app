@@ -31,7 +31,8 @@ const RecapPage = () => {
 	useEffect(() => {
 		const savedData = localStorage.getItem("votingData");
 		if (savedData) {
-			setAllData(JSON.parse(savedData));
+			const parsedData = JSON.parse(savedData);
+			setAllData(parsedData);
 		}
 	}, []);
 
@@ -48,11 +49,20 @@ const RecapPage = () => {
 	};
 
 	const handleAddNew = () => {
+		const existingTPS = new Set(allData.map((item) => item.tps));
+		localStorage.setItem(
+			"existingTPS",
+			JSON.stringify(Array.from(existingTPS))
+		);
 		router.push("/input");
 	};
 
 	const formatNumber = (num) => {
 		return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+	};
+
+	const calculateTotal = (votes) => {
+		return votes.reduce((sum, vote) => sum + parseInt(vote || 0), 0);
 	};
 
 	return (
@@ -92,6 +102,14 @@ const RecapPage = () => {
 											</span>
 										</div>
 									))}
+									<div className='mt-2 pt-2 border-t border-gray-200 dark:border-gray-700'>
+										<span className='text-gray-600 dark:text-gray-400 font-bold'>
+											Total
+										</span>
+										<span className='float-right text-gray-600 dark:text-gray-400 font-bold'>
+											{formatNumber(calculateTotal(data.gubernurCandidates))}
+										</span>
+									</div>
 								</div>
 								<div className='mb-4'>
 									<h3 className='text-lg font-medium mb-2 text-gray-700 dark:text-gray-300'>
@@ -110,6 +128,14 @@ const RecapPage = () => {
 											</span>
 										</div>
 									))}
+									<div className='mt-2 pt-2 border-t border-gray-200 dark:border-gray-700'>
+										<span className='text-gray-600 dark:text-gray-400 font-bold'>
+											Total
+										</span>
+										<span className='float-right text-gray-600 dark:text-gray-400 font-bold'>
+											{formatNumber(calculateTotal(data.walikotaCandidates))}
+										</span>
+									</div>
 								</div>
 								<div className='mt-4 flex items-center text-sm'>
 									{data.photo ? (
