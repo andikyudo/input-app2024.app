@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { useTheme } from "next-themes";
+// import { useTheme } from "next-themes";
 import ToggleSwitch from "../../components/ToggleSwitch";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -45,8 +45,8 @@ const NumericInput = ({ value, onChange, label }) => {
 							value={value[index] || ""}
 							onChange={(e) => handleChange(index, e)}
 							onKeyDown={(e) => handleKeyDown(index, e)}
-							className={`w-8 h-10 text-center bg-transparent border-b-2 border-gray-400 dark:border-gray-600 focus:border-blue-500 focus:outline-none text-xl text-gray-900 dark:text-white ${
-								value[index] ? "bg-blue-100 dark:bg-blue-900" : ""
+							className={`w-8 h-10 text-center border-b-2 border-gray-400 dark:border-gray-600 focus:border-blue-500 focus:outline-none text-xl text-gray-900 dark:text-white transition-colors duration-200 ${
+								value[index] ? "bg-blue-300 dark:bg-blue-900" : "bg-transparent"
 							}`}
 						/>
 					))}
@@ -164,10 +164,8 @@ const InputPage = () => {
 		setAllData(updatedData);
 		localStorage.setItem("votingData", JSON.stringify(updatedData));
 
-		// Update existingTPS
 		setExistingTPS(new Set(updatedData.map((item) => item.tps)));
 
-		// Reset form and go back to recap page
 		setTps("");
 		setGubernurCandidates(["", "", ""]);
 		setWalikotaCandidates(["", ""]);
