@@ -133,9 +133,5 @@ function LoginPage() {
 }
 
 export default function Home() {
-	return (
-		<ThemeProvider attribute='class'>
-			<LoginPage />
-		</ThemeProvider>
-	);
+	return <LoginPage />;
 }
