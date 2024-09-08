@@ -1,18 +1,19 @@
-// components/Header.js
+// components/Header.tsx
 "use client";
 
 import React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ToggleSwitch from "./ToggleSwitch";
+import { LogOut } from "lucide-react"; // Menggunakan ikon dari lucide-react
 
 const Header = () => {
 	const router = useRouter();
 
 	const handleLogout = () => {
-		// Implement logout logic here (e.g., clear local storage, reset auth state)
-		localStorage.removeItem("user"); // Assuming you store user info in localStorage
-		router.push("/login");
+		localStorage.removeItem("user");
+		window.dispatchEvent(new Event("storage"));
+		router.push("/");
 	};
 
 	return (
@@ -36,15 +37,15 @@ const Header = () => {
 								Rekapitulasi
 							</Link>
 						</li>
-						{/* Add more navigation items as needed */}
 					</ul>
 				</nav>
 				<div className='flex items-center space-x-4'>
 					<ToggleSwitch />
 					<button
 						onClick={handleLogout}
-						className='bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300'
+						className='flex items-center bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300'
 					>
+						<LogOut className='mr-2 h-4 w-4' />
 						Logout
 					</button>
 				</div>
