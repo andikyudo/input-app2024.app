@@ -109,6 +109,13 @@ const Header = () => {
 						>
 							Hasil
 						</Link>
+						<Link
+							href='/cari-tps'
+							className='text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium'
+							onClick={closeMenu}
+						>
+							Cari TPS
+						</Link>
 					</div>
 					<div className='pt-4 pb-3 border-t border-gray-700'>
 						<div className='flex items-center px-5 justify-between'>
