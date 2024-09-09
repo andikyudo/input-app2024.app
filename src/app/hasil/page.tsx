@@ -123,11 +123,11 @@ const HasilPage: React.FC = () => {
 		color,
 	}) => (
 		<div className='flex flex-col sm:flex-row items-start sm:items-center mb-4'>
-			<div className='w-full sm:w-40 truncate mr-2 mb-2 sm:mb-0 text-white'>
+			<div className='w-full sm:w-40 truncate mr-2 mb-2 sm:mb-0 text-gray-800 dark:text-white'>
 				{data.name}
 			</div>
 			<div className='flex-grow w-full sm:w-auto'>
-				<div className='relative h-6 bg-gray-700 rounded'>
+				<div className='relative h-6 bg-gray-200 dark:bg-gray-700 rounded'>
 					<div
 						className='absolute top-0 left-0 h-full rounded'
 						style={{
@@ -135,7 +135,7 @@ const HasilPage: React.FC = () => {
 							backgroundColor: color,
 						}}
 					></div>
-					<span className='absolute inset-0 flex items-center justify-end pr-2 text-xs font-semibold text-white'>
+					<span className='absolute inset-0 flex items-center justify-end pr-2 text-xs font-semibold text-gray-800 dark:text-white'>
 						{data.percentage.toFixed(2)}%
 					</span>
 				</div>
@@ -283,32 +283,5 @@ const HasilPage: React.FC = () => {
 		</div>
 	);
 };
-
-const CandidateBar: React.FC<{ data: ChartData; color: string }> = ({
-	data,
-	color,
-}) => (
-	<div className='flex flex-col sm:flex-row items-start sm:items-center mb-4'>
-		<div className='w-full sm:w-40 truncate mr-2 mb-2 sm:mb-0 text-gray-800 dark:text-gray-200'>
-			{data.name}
-		</div>
-		<div className='flex-grow w-full sm:w-auto'>
-			<ResponsiveContainer width='100%' height={20}>
-				<BarChart data={[data]} layout='vertical'>
-					<Bar dataKey='percentage' fill={color} />
-					<Tooltip
-						contentStyle={{
-							backgroundColor: "rgba(255, 255, 255, 0.8)",
-							color: "#333",
-						}}
-					/>
-				</BarChart>
-			</ResponsiveContainer>
-		</div>
-		<div className='w-full sm:w-24 text-right mt-2 sm:mt-0 text-gray-800 dark:text-gray-200'>
-			{data.percentage.toFixed(2)}%
-		</div>
-	</div>
-);
 
 export default HasilPage;
