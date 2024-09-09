@@ -10,17 +10,16 @@ const MapWithNoSSR = dynamic(() => import("../../components/Map"), {
 
 export default function CariTPSPage() {
 	const [selectedTPS, setSelectedTPS] = useState("");
-	const [showMap, setShowMap] = useState(false);
 
 	const handleTPSChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		setSelectedTPS(event.target.value);
-		setShowMap(true);
 	};
 
 	return (
-		<div className='container mx-auto px-4 py-8'>
+		<div className='container mx-auto px-4 py-24'>
+			{" "}
+			{/* Increased top padding */}
 			<h1 className='text-2xl font-bold mb-4'>Cari Lokasi TPS</h1>
-
 			<div className='mb-4'>
 				<label
 					htmlFor='tps'
@@ -42,9 +41,8 @@ export default function CariTPSPage() {
 					))}
 				</select>
 			</div>
-
-			{showMap && (
-				<div className='mt-4' style={{ height: "400px" }}>
+			{selectedTPS && (
+				<div className='mt-4'>
 					<MapWithNoSSR selectedTPS={selectedTPS} />
 				</div>
 			)}

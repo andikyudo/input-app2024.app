@@ -32,7 +32,7 @@ body {
 	}
 }
 
-.leaflet-default-icon-path {
+/* .leaflet-default-icon-path {
 	background-image: url(https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png);
 }
 
@@ -42,4 +42,32 @@ body {
 	background-repeat: no-repeat;
 	width: 25px !important;
 	height: 41px !important;
+} */
+/* Marker Kelap Kelip */
+
+.pulsing-dot {
+	border-radius: 50%;
+	height: 20px;
+	width: 20px;
+	transform-origin: center center;
+	animation: pulse 1.5s ease infinite;
+}
+
+@keyframes pulse {
+	0% {
+		transform: scale(0.5);
+		opacity: 0;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		transform: scale(1.5);
+		opacity: 0;
+	}
+}
+
+.leaflet-div-icon {
+	background: transparent;
+	border: none;
 }
