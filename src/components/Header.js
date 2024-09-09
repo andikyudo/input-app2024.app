@@ -38,8 +38,7 @@ const Header = () => {
 						</Link>
 					</div>
 					<div className='hidden sm:flex items-center space-x-4'>
-						<ToggleSwitch />
-						<nav className='ml-4'>
+						<nav className='flex items-center space-x-4'>
 							<Link
 								href='/input'
 								className='text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium'
@@ -62,6 +61,13 @@ const Header = () => {
 								Hasil
 							</Link>
 						</nav>
+						<ToggleSwitch />
+						<button
+							onClick={handleLogout}
+							className='bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300'
+						>
+							Logout
+						</button>
 					</div>
 					<div className='sm:hidden'>
 						<button
@@ -103,14 +109,16 @@ const Header = () => {
 						>
 							Hasil
 						</Link>
-						<div className='pt-4 pb-3 border-t border-gray-700'>
+					</div>
+					<div className='pt-4 pb-3 border-t border-gray-700'>
+						<div className='flex items-center px-5 justify-between'>
 							<ToggleSwitch />
 							<button
 								onClick={() => {
 									handleLogout();
 									closeMenu();
 								}}
-								className='mt-3 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300'
+								className='bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-300'
 							>
 								Logout
 							</button>
