@@ -76,40 +76,48 @@ const HasilPage = () => {
 				? gubernurCandidates
 				: walikotaCandidates;
 
-		return candidates
-			.map((candidate, index) => {
-				const votes = filteredData.reduce(
-					(sum, tps) => sum + parseInt(tps[candidateType][index] || "0"),
-					0
-				);
-				return {
-					name: candidate,
-					votes: votes,
-					percentage: totalVotes > 0 ? (votes / totalVotes) * 100 : 0,
-				};
-			})
-			.sort((a, b) => b.votes - a.votes);
+		return {
+			totalVotes,
+			results: candidates
+				.map((candidate, index) => {
+					const votes = filteredData.reduce(
+						(sum, tps) => sum + parseInt(tps[candidateType][index] || "0"),
+						0
+					);
+					return {
+						name: candidate,
+						votes: votes,
+						percentage: totalVotes > 0 ? (votes / totalVotes) * 100 : 0,
+					};
+				})
+				.sort((a, b) => b.votes - a.votes),
+		};
 	};
 
-	const renderChart = (data) => (
-		<div className='w-full h-6 bg-gray-200 rounded-full mt-2 mb-4'>
+	const renderMinimalistChart = (data, totalVotes) => (
+		<div className='w-full h-6 bg-gray-200 rounded-full overflow-hidden flex'>
 			{data.map((item, index) => (
 				<div
 					key={index}
 					style={{
 						width: `${item.percentage}%`,
 						backgroundColor: COLORS[index % COLORS.length],
-						height: "100%",
-						float: "left",
 					}}
-				/>
+					className='h-full relative'
+				>
+					{item.percentage > 5 && (
+						<span className='absolute inset-0 flex items-center justify-center text-xs font-bold text-white'>
+							{item.percentage.toFixed(1)}%
+						</span>
+					)}
+				</div>
 			))}
 		</div>
 	);
 
 	const renderResultsForKecamatan = (kecamatan) => {
-		const gubernurResults = calculateVotes("gubernurCandidates", kecamatan);
-		const walikotaResults = calculateVotes("walikotaCandidates", kecamatan);
+		const gubernurData = calculateVotes("gubernurCandidates", kecamatan);
+		const walikotaData = calculateVotes("walikotaCandidates", kecamatan);
 
 		return (
 			<div
@@ -121,43 +129,50 @@ const HasilPage = () => {
 				</h2>
 				<div className='p-4'>
 					<h3 className='text-lg font-semibold mb-2 text-gray-800 dark:text-white'>
-						Gubernur dan Wakil Gubernur
+						Gubernur dan Wakil Gubernur (Total: {gubernurData.totalVotes} suara)
 					</h3>
-					{gubernurResults.map((candidate, index) => (
-						<div key={index} className='mb-4'>
-							<div className='flex justify-between items-center text-gray-800 dark:text-gray-200'>
+					{renderMinimalistChart(gubernurData.results)}
+					<div className='mt-2 space-y-1'>
+						{gubernurData.results.map((candidate, index) => (
+							<div
+								key={index}
+								className='flex justify-between items-center text-sm'
+							>
 								<span
-									className={`${index === 0 ? "font-bold" : ""}`}
-									style={{ color: COLORS[index] }}
+									style={{ color: COLORS[index % COLORS.length] }}
+									className='font-medium'
 								>
 									{candidate.name}
 								</span>
-								<span>
-									{candidate.votes} suara ({candidate.percentage.toFixed(2)}%)
+								<span className='text-gray-600 dark:text-gray-300'>
+									{candidate.votes} suara
 								</span>
 							</div>
-							{renderChart([candidate])}
-						</div>
-					))}
-					<h3 className='text-lg font-semibold mb-2 mt-4 text-gray-800 dark:text-white'>
-						Walikota dan Wakil Walikota
+						))}
+					</div>
+
+					<h3 className='text-lg font-semibold mb-2 mt-6 text-gray-800 dark:text-white'>
+						Walikota dan Wakil Walikota (Total: {walikotaData.totalVotes} suara)
 					</h3>
-					{walikotaResults.map((candidate, index) => (
-						<div key={index} className='mb-4'>
-							<div className='flex justify-between items-center text-gray-800 dark:text-gray-200'>
+					{renderMinimalistChart(walikotaData.results)}
+					<div className='mt-2 space-y-1'>
+						{walikotaData.results.map((candidate, index) => (
+							<div
+								key={index}
+								className='flex justify-between items-center text-sm'
+							>
 								<span
-									className={`${index === 0 ? "font-bold" : ""}`}
-									style={{ color: COLORS[index] }}
+									style={{ color: COLORS[index % COLORS.length] }}
+									className='font-medium'
 								>
 									{candidate.name}
 								</span>
-								<span>
-									{candidate.votes} suara ({candidate.percentage.toFixed(2)}%)
+								<span className='text-gray-600 dark:text-gray-300'>
+									{candidate.votes} suara
 								</span>
 							</div>
-							{renderChart([candidate])}
-						</div>
-					))}
+						))}
+					</div>
 				</div>
 			</div>
 		);
