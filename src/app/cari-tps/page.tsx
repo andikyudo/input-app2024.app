@@ -15,18 +15,22 @@ export default function CariTPSPage() {
 		setSelectedTPS(event.target.value);
 	};
 
+	const handleRouteToTPS = () => {
+		const selectedTPSData = tpsCoordinates.find(
+			(tps) => tps.id.toString() === selectedTPS
+		);
+		if (selectedTPSData) {
+			const url = `https://www.google.com/maps/dir/?api=1&destination=${selectedTPSData.lat},${selectedTPSData.lng}`;
+			window.open(url, "_blank");
+		}
+	};
+
 	return (
 		<div className='w-full'>
 			<h1 className='text-2xl font-bold mb-4 text-black dark:text-white'>
 				Cari Lokasi TPS
 			</h1>
 			<div className='mb-4'>
-				{/* <label
-					htmlFor='tps'
-					className='block text-sm font-medium text-white dark:text-black'
-				>
-					Pilih TPS
-				</label> */}
 				<select
 					id='tps'
 					value={selectedTPS}
@@ -41,8 +45,18 @@ export default function CariTPSPage() {
 					))}
 				</select>
 			</div>
-			<div className='mt-4 relative z-0' style={{ height: "60vh" }}>
+			<div className='mt-4 relative' style={{ height: "400px" }}>
 				<MapWithNoSSR selectedTPS={selectedTPS} />
+			</div>
+			<div className='mt-4'>
+				{selectedTPS && (
+					<button
+						onClick={handleRouteToTPS}
+						className='w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+					>
+						Rute ke TPS
+					</button>
+				)}
 			</div>
 		</div>
 	);

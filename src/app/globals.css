@@ -4,77 +4,83 @@
 @import "leaflet/dist/leaflet.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+	--background: #ffffff;
+	--foreground: #171717;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+	:root {
+		--background: #0a0a0a;
+		--foreground: #ededed;
+	}
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+	color: var(--foreground);
+	background: var(--background);
 
-  /* font-family: Arial, Helvetica, sans-serif; */
+	/* font-family: Arial, Helvetica, sans-serif; */
 }
 html,
 body {
-  height: 100%; /* Tambahkan ini */
+	height: 100%; /* Tambahkan ini */
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
-
-/* .leaflet-default-icon-path {
-	background-image: url(https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png);
-}
-
-.leaflet-marker-icon {
-	background-image: url(https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png);
-	background-size: contain;
-	background-repeat: no-repeat;
-	width: 25px !important;
-	height: 41px !important;
-} */
-/* Marker Kelap Kelip */
-
-.pulsing-dot {
-  border-radius: 50%;
-  height: 20px;
-  width: 20px;
-  transform-origin: center center;
-  animation: pulse 1.5s ease infinite;
+	.text-balance {
+		text-wrap: balance;
+	}
 }
 
 @keyframes pulse {
-  0% {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.5);
-    opacity: 0;
-  }
+	0% {
+		transform: scale(0.5);
+		opacity: 0;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		transform: scale(1.5);
+		opacity: 0;
+	}
+}
+
+.pulsing-dot-icon {
+	background: none;
+	border: none;
+}
+
+.pulsing-dot {
+	border-radius: 50%;
+	height: 20px;
+	width: 20px;
+	transform-origin: center center;
+	animation: pulse 1.5s ease infinite;
+}
+
+@keyframes pulse {
+	0% {
+		transform: scale(0.5);
+		opacity: 0;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		transform: scale(1.5);
+		opacity: 0;
+	}
 }
 
 .leaflet-div-icon {
-  background: transparent;
-  border: none;
+	background: transparent;
+	border: none;
 }
 
 main {
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
 }
 
 .leaflet-pane,
@@ -87,34 +93,34 @@ main {
 .leaflet-zoom-box,
 .leaflet-image-layer,
 .leaflet-layer {
-  z-index: 1 !important;
+	z-index: 1 !important;
 }
 
 .leaflet-overlay-pane {
-  z-index: 2 !important;
+	z-index: 2 !important;
 }
 
 .leaflet-shadow-pane {
-  z-index: 3 !important;
+	z-index: 3 !important;
 }
 
 .leaflet-marker-pane {
-  z-index: 4 !important;
+	z-index: 4 !important;
 }
 
 .leaflet-tooltip-pane {
-  z-index: 5 !important;
+	z-index: 5 !important;
 }
 
 .leaflet-popup-pane {
-  z-index: 6 !important;
+	z-index: 6 !important;
 }
 
 .leaflet-control {
-  z-index: 7 !important;
+	z-index: 7 !important;
 }
 
 .leaflet-top,
 .leaflet-bottom {
-  z-index: 8 !important;
+	z-index: 8 !important;
 }

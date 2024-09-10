@@ -1,47 +1,69 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import React, { useEffect, useRef } from "react";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Icon, LatLngTuple } from "leaflet";
-import { tpsCoordinates, getTPSCoordinate } from "../data/tpsCoordinates";
+import { LatLngTuple } from "leaflet";
+import { getTPSCoordinate } from "../data/tpsCoordinates";
+import { pulsingDotIcon } from "./PulsingDot";
+
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+const DefaultIcon = L.icon({
+	iconUrl: markerIcon.src,
+	shadowUrl: markerShadow.src,
+	iconSize: [25, 41],
+	iconAnchor: [12, 41],
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 interface MapProps {
 	selectedTPS: string;
 }
 
 const Map: React.FC<MapProps> = ({ selectedTPS }) => {
-	const defaultPosition: LatLngTuple = [-0.0263303, 109.3425039]; // Koordinat default Pontianak
+	const mapRef = useRef<L.Map | null>(null);
+	const mapContainerRef = useRef<HTMLDivElement>(null);
+
+	const defaultPosition: LatLngTuple = [-0.0263303, 109.3425039];
 	const selectedTPSId = parseInt(selectedTPS, 10);
 	const selectedTPSData = getTPSCoordinate(selectedTPSId);
 	const position: LatLngTuple = selectedTPSData
 		? [selectedTPSData.lat, selectedTPSData.lng]
 		: defaultPosition;
 
-	const customIcon = new Icon({
-		iconUrl: "/marker-icon.png",
-		iconSize: [25, 41],
-		iconAnchor: [12, 41],
-	});
+	useEffect(() => {
+		if (mapContainerRef.current && !mapRef.current) {
+			mapRef.current = L.map(mapContainerRef.current).setView(position, 15);
+
+			L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+				attribution:
+					'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+			}).addTo(mapRef.current);
+		}
+
+		return () => {
+			if (mapRef.current) {
+				mapRef.current.remove();
+				mapRef.current = null;
+			}
+		};
+	}, []);
+
+	useEffect(() => {
+		if (mapRef.current && selectedTPSData) {
+			mapRef.current.setView([selectedTPSData.lat, selectedTPSData.lng], 15);
+
+			L.marker([selectedTPSData.lat, selectedTPSData.lng], {
+				icon: pulsingDotIcon,
+			})
+				.addTo(mapRef.current)
+				.bindPopup(`TPS ${selectedTPS}`);
+		}
+	}, [selectedTPS, selectedTPSData]);
 
 	return (
-		<div style={{ height: "400px", width: "100%", zIndex: 10 }}>
-			<MapContainer
-				center={position}
-				zoom={15}
-				scrollWheelZoom={false}
-				style={{ height: "100%", width: "100%" }}
-			>
-				<TileLayer
-					attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-					url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-				/>
-				{selectedTPS && (
-					<Marker position={position} icon={customIcon}>
-						<Popup>TPS {selectedTPS}</Popup>
-					</Marker>
-				)}
-			</MapContainer>
-		</div>
+		<div ref={mapContainerRef} style={{ height: "400px", width: "100%" }} />
 	);
 };
 
