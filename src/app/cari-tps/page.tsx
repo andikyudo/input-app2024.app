@@ -8,6 +8,19 @@ const MapWithNoSSR = dynamic(() => import("../../components/Map"), {
 	ssr: false,
 });
 
+async function getAddress(lat: number, lon: number): Promise<string> {
+	try {
+		const response = await fetch(
+			`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`
+		);
+		const data = await response.json();
+		return data.display_name || "Alamat tidak ditemukan";
+	} catch (error) {
+		console.error("Error fetching address:", error);
+		return "Gagal mendapatkan alamat";
+	}
+}
+
 export default function CariTPSPage() {
 	const [selectedTPS, setSelectedTPS] = useState("");
 	const [tpsLocation, setTpsLocation] = useState("");
@@ -17,17 +30,20 @@ export default function CariTPSPage() {
 	};
 
 	useEffect(() => {
-		if (selectedTPS) {
-			const tps = tpsCoordinates.find(
-				(tps) => tps.id.toString() === selectedTPS
-			);
-			if (tps) {
-				// Anda bisa menambahkan lebih banyak detail lokasi di sini jika tersedia
-				setTpsLocation(`Latitude: ${tps.lat}, Longitude: ${tps.lng}`);
+		async function fetchAddress() {
+			if (selectedTPS) {
+				const tps = tpsCoordinates.find(
+					(tps) => tps.id.toString() === selectedTPS
+				);
+				if (tps) {
+					const address = await getAddress(tps.lat, tps.lng);
+					setTpsLocation(address);
+				}
+			} else {
+				setTpsLocation("");
 			}
-		} else {
-			setTpsLocation("");
 		}
+		fetchAddress();
 	}, [selectedTPS]);
 
 	const handleRouteToTPS = () => {
@@ -71,11 +87,13 @@ export default function CariTPSPage() {
 					>
 						Rute ke TPS {selectedTPS}
 					</button>
-					<div className='w-full p-4 bg-gray-100 dark:bg-gray-800 rounded shadow'>
-						<h3 className='font-semibold text-lg mb-2'>
+					<div className='w-full p-4 bg-white dark:bg-gray-800 rounded shadow border border-gray-200 dark:border-gray-700'>
+						<h3 className='font-semibold text-lg mb-2 text-black dark:text-white'>
 							Lokasi TPS {selectedTPS}
 						</h3>
-						<p>{tpsLocation}</p>
+						<p className='text-gray-700 dark:text-gray-300'>
+							{tpsLocation || "Memuat alamat..."}
+						</p>
 					</div>
 				</div>
 			)}
