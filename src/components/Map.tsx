@@ -1,8 +1,8 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { getTPSCoordinate } from "../data/tpsCoordinates";
 import { pulsingDotIcon } from "./PulsingDot";
-import { MapPin } from "lucide-react"; // Import ikon
+import { MapPin } from "lucide-react";
 
 interface MapProps {
 	selectedTPS: string;
@@ -14,13 +14,33 @@ const ChangeView = ({ center }: { center: [number, number] }) => {
 	return null;
 };
 
+const getAddress = async (lat: number, lng: number): Promise<string> => {
+	try {
+		const response = await fetch(
+			`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+		);
+		const data = await response.json();
+		return data.display_name || "Alamat tidak ditemukan";
+	} catch (error) {
+		console.error("Error fetching address:", error);
+		return "Gagal mendapatkan alamat";
+	}
+};
+
 const Map: React.FC<MapProps> = ({ selectedTPS }) => {
 	const tpsId = parseInt(selectedTPS);
 	const tpsCoordinate = useMemo(() => getTPSCoordinate(tpsId), [tpsId]);
+	const [address, setAddress] = useState<string>("");
 
 	const position: [number, number] = tpsCoordinate
 		? [tpsCoordinate.lat, tpsCoordinate.lng]
-		: [-6.2088, 106.8456]; // Default position if no TPS selected
+		: [-0.0422285, 109.3246004]; // Default position if no TPS selected
+
+	useEffect(() => {
+		if (tpsCoordinate) {
+			getAddress(tpsCoordinate.lat, tpsCoordinate.lng).then(setAddress);
+		}
+	}, [tpsCoordinate]);
 
 	const handleGetDirections = () => {
 		if (tpsCoordinate) {
@@ -51,13 +71,19 @@ const Map: React.FC<MapProps> = ({ selectedTPS }) => {
 				</MapContainer>
 			</div>
 			{tpsCoordinate && (
-				<button
-					onClick={handleGetDirections}
-					className='mt-4 bg-emerald-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded w-full flex items-center justify-center'
-				>
-					<MapPin className='mr-2' size={18} />
-					Buka Petunjuk Arah
-				</button>
+				<div className='mt-4 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4'>
+					<button
+						onClick={handleGetDirections}
+						className='w-full mb-4 bg-emerald-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded flex items-center justify-center'
+					>
+						<MapPin className='mr-2' size={18} />
+						Buka Petunjuk Arah
+					</button>
+					<div className='text-sm text-gray-600 dark:text-gray-300'>
+						<h3 className='font-semibold mb-1'>Alamat TPS:</h3>
+						<p>{address}</p>
+					</div>
+				</div>
 			)}
 		</div>
 	);
