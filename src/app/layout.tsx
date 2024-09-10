@@ -4,15 +4,15 @@ import "./globals.css";
 import ClientWrapper from "./ClientWrapper";
 
 export default function RootLayout({
-	children,
+  children,
 }: {
-	children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-	return (
-		<html lang='en' className={`${GeistSans.variable} ${GeistMono.variable}`}>
-			<body>
-				<ClientWrapper>{children}</ClientWrapper>
-			</body>
-		</html>
-	);
+  return (
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <body>
+        <ClientWrapper>{children}</ClientWrapper>
+      </body>
+    </html>
+  );
 }

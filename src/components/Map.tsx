@@ -1,90 +1,46 @@
-import React, { useMemo, useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import { getTPSCoordinate } from "../data/tpsCoordinates";
-import { pulsingDotIcon } from "./PulsingDot";
-import { MapPin } from "lucide-react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React from "react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import { Icon, LatLngTuple } from "leaflet";
+import { tpsCoordinates, getTPSCoordinate } from "../data/tpsCoordinates";
 
 interface MapProps {
 	selectedTPS: string;
 }
 
-const ChangeView = ({ center }: { center: [number, number] }) => {
-	const map = useMap();
-	map.setView(center, 15);
-	return null;
-};
-
-const getAddress = async (lat: number, lng: number): Promise<string> => {
-	try {
-		const response = await fetch(
-			`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
-		);
-		const data = await response.json();
-		return data.display_name || "Alamat tidak ditemukan";
-	} catch (error) {
-		console.error("Error fetching address:", error);
-		return "Gagal mendapatkan alamat";
-	}
-};
-
 const Map: React.FC<MapProps> = ({ selectedTPS }) => {
-	const tpsId = parseInt(selectedTPS);
-	const tpsCoordinate = useMemo(() => getTPSCoordinate(tpsId), [tpsId]);
-	const [address, setAddress] = useState<string>("");
+	const defaultPosition: LatLngTuple = [-0.0263303, 109.3425039]; // Koordinat default Pontianak
+	const selectedTPSId = parseInt(selectedTPS, 10);
+	const selectedTPSData = getTPSCoordinate(selectedTPSId);
+	const position: LatLngTuple = selectedTPSData
+		? [selectedTPSData.lat, selectedTPSData.lng]
+		: defaultPosition;
 
-	const position: [number, number] = tpsCoordinate
-		? [tpsCoordinate.lat, tpsCoordinate.lng]
-		: [-0.0422285, 109.3246004]; // Default position if no TPS selected
-
-	useEffect(() => {
-		if (tpsCoordinate) {
-			getAddress(tpsCoordinate.lat, tpsCoordinate.lng).then(setAddress);
-		}
-	}, [tpsCoordinate]);
-
-	const handleGetDirections = () => {
-		if (tpsCoordinate) {
-			const url = `https://www.google.com/maps/dir/?api=1&destination=${tpsCoordinate.lat},${tpsCoordinate.lng}`;
-			window.open(url, "_blank");
-		}
-	};
+	const customIcon = new Icon({
+		iconUrl: "/marker-icon.png",
+		iconSize: [25, 41],
+		iconAnchor: [12, 41],
+	});
 
 	return (
-		<div className='relative'>
-			<div style={{ height: "400px", width: "100%", zIndex: 10 }}>
-				<MapContainer
-					center={position}
-					zoom={15}
-					scrollWheelZoom={false}
-					style={{ height: "100%", width: "100%" }}
-				>
-					<ChangeView center={position} />
-					<TileLayer
-						attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-						url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-					/>
-					{tpsCoordinate && (
-						<Marker position={position} icon={pulsingDotIcon}>
-							<Popup>{tpsCoordinate.name}</Popup>
-						</Marker>
-					)}
-				</MapContainer>
-			</div>
-			{tpsCoordinate && (
-				<div className='mt-4 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4'>
-					<button
-						onClick={handleGetDirections}
-						className='w-full mb-4 bg-emerald-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded flex items-center justify-center'
-					>
-						<MapPin className='mr-2' size={18} />
-						Buka Petunjuk Arah
-					</button>
-					<div className='text-sm text-gray-600 dark:text-gray-300'>
-						<h3 className='font-semibold mb-1'>Alamat TPS:</h3>
-						<p>{address}</p>
-					</div>
-				</div>
-			)}
+		<div style={{ height: "400px", width: "100%", zIndex: 10 }}>
+			<MapContainer
+				center={position}
+				zoom={15}
+				scrollWheelZoom={false}
+				style={{ height: "100%", width: "100%" }}
+			>
+				<TileLayer
+					attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+					url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+				/>
+				{selectedTPS && (
+					<Marker position={position} icon={customIcon}>
+						<Popup>TPS {selectedTPS}</Popup>
+					</Marker>
+				)}
+			</MapContainer>
 		</div>
 	);
 };

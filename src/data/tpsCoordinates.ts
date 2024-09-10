@@ -1,4 +1,4 @@
-interface TPSCoordinate {
+export interface TPSCoordinate {
 	id: number;
 	name: string;
 	lat: number;

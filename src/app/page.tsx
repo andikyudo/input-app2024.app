@@ -6,39 +6,55 @@ import { authenticateUser } from "../utils/authData";
 import ToggleSwitch from "../components/ToggleSwitch";
 import { Info, AlertCircle } from "lucide-react";
 
-const NumericInput = ({
+type NumericInputProps = {
+	value: string;
+	onChange: (value: string) => void;
+	placeholder: string;
+	label: string;
+	onComplete: () => void;
+	onBackspace: () => void;
+	setFirstInputRef: (ref: HTMLInputElement | null) => void;
+};
+
+const NumericInput: React.FC<NumericInputProps> = ({
 	value,
 	onChange,
 	placeholder,
 	label,
 	onComplete,
 	onBackspace,
-	inputRef,
+	setFirstInputRef,
 }) => {
-	const inputRefs = useRef([]);
+	const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
 	useEffect(() => {
 		inputRefs.current = inputRefs.current.slice(0, 4);
 	}, []);
 
-	const handleChange = (index, e) => {
+	const handleChange = (
+		index: number,
+		e: React.ChangeEvent<HTMLInputElement>
+	) => {
 		const inputValue = e.target.value;
 		if (/^[0-9]$/.test(inputValue) || inputValue === "") {
-			const newValue = [...value];
+			const newValue = value.split("");
 			newValue[index] = inputValue;
 			onChange(newValue.join(""));
 
 			if (inputValue && index < 3) {
-				inputRefs.current[index + 1].focus();
+				inputRefs.current[index + 1]?.focus();
 			} else if (index === 3 && inputValue) {
 				onComplete();
 			}
 		}
 	};
 
-	const handleKeyDown = (index, e) => {
+	const handleKeyDown = (
+		index: number,
+		e: React.KeyboardEvent<HTMLInputElement>
+	) => {
 		if (e.key === "Backspace" && !value[index] && index > 0) {
-			inputRefs.current[index - 1].focus();
+			inputRefs.current[index - 1]?.focus();
 		} else if (e.key === "Backspace" && index === 0 && !value[0]) {
 			onBackspace();
 		}
@@ -55,7 +71,9 @@ const NumericInput = ({
 						<input
 							ref={(el) => {
 								inputRefs.current[index] = el;
-								if (index === 0) inputRef.current = el;
+								if (index === 0) {
+									setFirstInputRef(el);
+								}
 							}}
 							type='text'
 							maxLength={1}
@@ -76,14 +94,16 @@ const NumericInput = ({
 	);
 };
 
-function LoginPage() {
+const LoginPage: React.FC = () => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
 	const [showTooltip, setShowTooltip] = useState(false);
+	const [usernameFirstInput, setUsernameFirstInput] =
+		useState<HTMLInputElement | null>(null);
+	const [passwordFirstInput, setPasswordFirstInput] =
+		useState<HTMLInputElement | null>(null);
 	const router = useRouter();
-	const usernameInputRef = useRef(null);
-	const passwordInputRef = useRef(null);
 
 	useEffect(() => {
 		if (username.length === 4 && password.length === 4) {
@@ -91,7 +111,7 @@ function LoginPage() {
 				console.log("Login berhasil:", username);
 				localStorage.setItem("user", JSON.stringify({ username }));
 				window.dispatchEvent(new Event("storage"));
-				router.push("/input");
+				void router.push("/input");
 			} else {
 				setError("Username atau password salah");
 			}
@@ -105,11 +125,11 @@ function LoginPage() {
 	}, [username, password, error]);
 
 	const handleUsernameComplete = () => {
-		passwordInputRef.current?.focus();
+		passwordFirstInput?.focus();
 	};
 
 	const handlePasswordBackspace = () => {
-		usernameInputRef.current?.focus();
+		usernameFirstInput?.focus();
 	};
 
 	return (
@@ -131,7 +151,7 @@ function LoginPage() {
 							label='Username'
 							onComplete={handleUsernameComplete}
 							onBackspace={() => {}}
-							inputRef={usernameInputRef}
+							setFirstInputRef={setUsernameFirstInput}
 						/>
 					</div>
 					<div className='px-14 '>
@@ -142,7 +162,7 @@ function LoginPage() {
 							label='Password'
 							onComplete={() => {}}
 							onBackspace={handlePasswordBackspace}
-							inputRef={passwordInputRef}
+							setFirstInputRef={setPasswordFirstInput}
 						/>
 						{error && (
 							<div className='bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded relative'>
@@ -152,9 +172,12 @@ function LoginPage() {
 										<p className='text-xs'>{error}</p>
 									</div>
 									<button
-										onClick={() =>
-											window.open("https://wa.me/+6281234567890", "_blank")
-										}
+										onClick={() => {
+											void window.open(
+												"https://wa.me/+6281234567890",
+												"_blank"
+											);
+										}}
 										className='text-xs text-red-600 hover:text-red-800 underline ml-2'
 									>
 										Hubungi Admin
@@ -181,14 +204,14 @@ function LoginPage() {
 					<p className='text-sm text-gray-600 dark:text-gray-300 text-center'>
 						Untuk efisiensi gunakan browser Chrome di HP anda (download jika
 						belum ada), kemudian klik tanda titik 3 di sudut kanan atas,
-						kemudian pilih "Tambahkan ke Layar Utama/Desktop", selanjutnya
-						aplikasi akan berada di layar utama HP anda.
+						kemudian pilih &quot;Tambahkan ke Layar Utama/Desktop&quot;,
+						selanjutnya aplikasi akan berada di layar utama HP anda.
 					</p>
 				</div>
 			)}
 		</div>
 	);
-}
+};
 
 export default function Home() {
 	return <LoginPage />;

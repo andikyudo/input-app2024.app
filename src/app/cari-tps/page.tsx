@@ -35,7 +35,7 @@ export default function CariTPSPage() {
 				>
 					<option value=''>Pilih TPS</option>
 					{tpsCoordinates.map((tps) => (
-						<option key={tps.id} value={tps.id}>
+						<option key={tps.id} value={tps.id.toString()}>
 							{tps.name}
 						</option>
 					))}
