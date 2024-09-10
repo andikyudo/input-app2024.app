@@ -25,8 +25,23 @@ export default function CariTPSPage() {
 	const [selectedTPS, setSelectedTPS] = useState("");
 	const [tpsLocation, setTpsLocation] = useState("");
 
+	useEffect(() => {
+		const savedTPS = localStorage.getItem("selectedTPS");
+		if (savedTPS) {
+			setSelectedTPS(savedTPS);
+		}
+	}, []);
+
 	const handleTPSChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		setSelectedTPS(event.target.value);
+		const newSelectedTPS = event.target.value;
+		setSelectedTPS(newSelectedTPS);
+		localStorage.setItem("selectedTPS", newSelectedTPS);
+	};
+
+	const handleClearSelection = () => {
+		setSelectedTPS("");
+		setTpsLocation("");
+		localStorage.removeItem("selectedTPS");
 	};
 
 	useEffect(() => {
@@ -57,7 +72,9 @@ export default function CariTPSPage() {
 	};
 
 	return (
-		<div className='w-full max-w-4xl mx-auto p-4'>
+		<div className='w-full max-w-4xl mx-auto p-4 mt-16'>
+			{" "}
+			{/* Tambahkan margin-top di sini */}
 			<h1 className='text-2xl font-bold mb-4 text-black dark:text-white'>
 				Cari Lokasi TPS
 			</h1>
@@ -83,7 +100,7 @@ export default function CariTPSPage() {
 				<div className='mt-4 space-y-2'>
 					<button
 						onClick={handleRouteToTPS}
-						className='w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+						className='w-full bg-emerald-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
 					>
 						Rute ke TPS {selectedTPS}
 					</button>
@@ -91,9 +108,15 @@ export default function CariTPSPage() {
 						<h3 className='font-semibold text-lg mb-2 text-black dark:text-white'>
 							Lokasi TPS {selectedTPS}
 						</h3>
-						<p className='text-gray-700 dark:text-gray-300'>
+						<p className='text-gray-700 dark:text-gray-300 mb-2'>
 							{tpsLocation || "Memuat alamat..."}
 						</p>
+						<button
+							onClick={handleClearSelection}
+							className='text-sm text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300'
+						>
+							Hapus Pilihan TPS ini
+						</button>
 					</div>
 				</div>
 			)}
