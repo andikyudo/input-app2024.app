@@ -1,29 +1,44 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-// import { useTheme } from "next-themes";
 import ToggleSwitch from "../../components/ToggleSwitch";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const NumericInput = ({ value, onChange, label }) => {
-	const inputRefs = useRef([]);
+type NumericInputProps = {
+	value: string;
+	onChange: (value: string) => void;
+	label: string;
+};
 
-	const handleChange = (index, e) => {
+const NumericInput: React.FC<NumericInputProps> = ({
+	value,
+	onChange,
+	label,
+}) => {
+	const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+	const handleChange = (
+		index: number,
+		e: React.ChangeEvent<HTMLInputElement>
+	) => {
 		const newValue = e.target.value.replace(/[^0-9]/g, "");
 		if (newValue.length <= 1) {
-			const newValues = [...value];
+			const newValues = value.split("");
 			newValues[index] = newValue;
 			onChange(newValues.join(""));
 
 			if (newValue && index < 4) {
-				inputRefs.current[index + 1].focus();
+				inputRefs.current[index + 1]?.focus();
 			}
 		}
 	};
 
-	const handleKeyDown = (index, e) => {
+	const handleKeyDown = (
+		index: number,
+		e: React.KeyboardEvent<HTMLInputElement>
+	) => {
 		if (e.key === "Backspace" && !value[index] && index > 0) {
-			inputRefs.current[index - 1].focus();
+			inputRefs.current[index - 1]?.focus();
 		}
 	};
 
@@ -56,7 +71,17 @@ const NumericInput = ({ value, onChange, label }) => {
 	);
 };
 
-const CandidateInput = ({ label, candidates, onChange }) => {
+type CandidateInputProps = {
+	label: string;
+	candidates: string[];
+	onChange: (index: number, value: string) => void;
+};
+
+const CandidateInput: React.FC<CandidateInputProps> = ({
+	label,
+	candidates,
+	onChange,
+}) => {
 	return (
 		<div className='mb-8'>
 			<h3 className='text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200'>
@@ -74,24 +99,39 @@ const CandidateInput = ({ label, candidates, onChange }) => {
 	);
 };
 
-const InputPage = () => {
-	const [step, setStep] = useState("selectTPS");
+type VotingData = {
+	tps: string;
+	gubernurCandidates: string[];
+	walikotaCandidates: string[];
+	photo: string | null;
+	timestamp: string;
+};
+
+const InputPage: React.FC = () => {
+	const [step, setStep] = useState<"selectTPS" | "inputData">("selectTPS");
 	const [tps, setTps] = useState("");
-	const [gubernurCandidates, setGubernurCandidates] = useState(["", "", ""]);
-	const [walikotaCandidates, setWalikotaCandidates] = useState(["", ""]);
-	const [photo, setPhoto] = useState(null);
-	const [allData, setAllData] = useState([]);
-	const [editIndex, setEditIndex] = useState(null);
-	const [existingTPS, setExistingTPS] = useState(new Set());
-	const fileInputRef = useRef(null);
-	const cameraInputRef = useRef(null);
+	const [gubernurCandidates, setGubernurCandidates] = useState<string[]>([
+		"",
+		"",
+		"",
+	]);
+	const [walikotaCandidates, setWalikotaCandidates] = useState<string[]>([
+		"",
+		"",
+	]);
+	const [photo, setPhoto] = useState<File | null>(null);
+	const [allData, setAllData] = useState<VotingData[]>([]);
+	const [editIndex, setEditIndex] = useState<number | null>(null);
+	const [existingTPS, setExistingTPS] = useState<Set<string>>(new Set());
+	const fileInputRef = useRef<HTMLInputElement>(null);
+	const cameraInputRef = useRef<HTMLInputElement>(null);
 	const router = useRouter();
 	const searchParams = useSearchParams();
 
 	useEffect(() => {
 		const savedData = localStorage.getItem("votingData");
 		if (savedData) {
-			const parsedData = JSON.parse(savedData);
+			const parsedData: VotingData[] = JSON.parse(savedData);
 			setAllData(parsedData);
 			setExistingTPS(new Set(parsedData.map((item) => item.tps)));
 		}
@@ -100,20 +140,20 @@ const InputPage = () => {
 		if (editParam) {
 			const index = parseInt(editParam, 10);
 			setEditIndex(index);
-			const dataToEdit = JSON.parse(savedData)[index];
+			const dataToEdit = JSON.parse(savedData || "[]")[index];
 			setTps(dataToEdit.tps);
 			setGubernurCandidates(dataToEdit.gubernurCandidates);
 			setWalikotaCandidates(dataToEdit.walikotaCandidates);
-			setPhoto(dataToEdit.photo);
+			setPhoto(dataToEdit.photo ? new File([], dataToEdit.photo) : null);
 			setStep("inputData");
 		}
 	}, [searchParams]);
 
-	const handleTpsChange = (e) => {
+	const handleTpsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		setTps(e.target.value);
 	};
 
-	const handleTpsSubmit = (e) => {
+	const handleTpsSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (tps && !existingTPS.has(tps)) {
 			setStep("inputData");
@@ -122,30 +162,30 @@ const InputPage = () => {
 		}
 	};
 
-	const handleGubernurChange = (index, value) => {
+	const handleGubernurChange = (index: number, value: string) => {
 		const newCandidates = [...gubernurCandidates];
 		newCandidates[index] = value;
 		setGubernurCandidates(newCandidates);
 	};
 
-	const handleWalikotaChange = (index, value) => {
+	const handleWalikotaChange = (index: number, value: string) => {
 		const newCandidates = [...walikotaCandidates];
 		newCandidates[index] = value;
 		setWalikotaCandidates(newCandidates);
 	};
 
-	const handlePhotoUpload = (e) => {
-		const file = e.target.files[0];
-		setPhoto(file);
+	const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (file) setPhoto(file);
 	};
 
-	const handleCameraCapture = (e) => {
-		const file = e.target.files[0];
-		setPhoto(file);
+	const handleCameraCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (file) setPhoto(file);
 	};
 
 	const handleSubmit = () => {
-		const newData = {
+		const newData: VotingData = {
 			tps,
 			gubernurCandidates,
 			walikotaCandidates,
@@ -153,7 +193,7 @@ const InputPage = () => {
 			timestamp: new Date().toISOString(),
 		};
 
-		let updatedData;
+		let updatedData: VotingData[];
 		if (editIndex !== null) {
 			updatedData = [...allData];
 			updatedData[editIndex] = newData;
@@ -246,13 +286,13 @@ const InputPage = () => {
 								</label>
 								<div className='flex space-x-2'>
 									<button
-										onClick={() => fileInputRef.current.click()}
+										onClick={() => fileInputRef.current?.click()}
 										className='flex-1 py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300'
 									>
 										Pilih File
 									</button>
 									<button
-										onClick={() => cameraInputRef.current.click()}
+										onClick={() => cameraInputRef.current?.click()}
 										className='flex-1 py-2 px-4 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300'
 									>
 										Ambil Foto
