@@ -137,7 +137,7 @@ const HasilPage: React.FC = () => {
 					<h3 className='text-lg font-semibold mb-2 text-gray-800 dark:text-white'>
 						Gubernur dan Wakil Gubernur (Total: {gubernurData.totalVotes} suara)
 					</h3>
-					{renderMinimalistChart(gubernurData.results, gubernurData.totalVotes)}
+					{renderMinimalistChart(gubernurData.results)}
 					<div className='mt-2 space-y-1'>
 						{gubernurData.results.map((candidate, index) => (
 							<div
@@ -160,7 +160,7 @@ const HasilPage: React.FC = () => {
 					<h3 className='text-lg font-semibold mb-2 mt-6 text-gray-800 dark:text-white'>
 						Walikota dan Wakil Walikota (Total: {walikotaData.totalVotes} suara)
 					</h3>
-					{renderMinimalistChart(walikotaData.results, walikotaData.totalVotes)}
+					{renderMinimalistChart(walikotaData.results)}
 					<div className='mt-2 space-y-1'>
 						{walikotaData.results.map((candidate, index) => (
 							<div
