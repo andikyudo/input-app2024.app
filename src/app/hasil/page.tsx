@@ -99,8 +99,7 @@ const HasilPage: React.FC = () => {
 	};
 
 	const renderMinimalistChart = (
-		data: { name: string; votes: number; percentage: number }[],
-		totalVotes: number
+		data: { name: string; votes: number; percentage: number }[]
 	) => (
 		<div className='w-full h-6 bg-gray-200 rounded-full overflow-hidden flex'>
 			{data.map((item, index) => (
