@@ -3,13 +3,24 @@
 import React, { useState, useEffect } from "react";
 import Header from "../../components/Header";
 
-const gubernurCandidates = [
+type Candidate = string;
+type VotingData = {
+	kecamatan: string;
+	kelurahan: string;
+	gubernurCandidates: string[];
+	walikotaCandidates: string[];
+};
+
+const gubernurCandidates: Candidate[] = [
 	"Ria Norsan - Krisantus K.",
 	"Sutarmidji - Didi Haryono",
 	"Muda M. - Jakius Sinyor",
 ];
 
-const walikotaCandidates = ["Edi Rusdi K. - Bahasan", "Mulyadi - Harti"];
+const walikotaCandidates: Candidate[] = [
+	"Edi Rusdi K. - Bahasan",
+	"Mulyadi - Harti",
+];
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28"];
 
@@ -22,7 +33,7 @@ const kecamatanList = [
 	"Pontianak Kota",
 ];
 
-const kelurahanList = {
+const kelurahanList: { [key: string]: string[] } = {
 	"Pontianak Utara": ["Kelurahan A", "Kelurahan B", "Kelurahan C"],
 	"Pontianak Timur": ["Kelurahan D", "Kelurahan E", "Kelurahan F"],
 	"Pontianak Selatan": ["Kelurahan G", "Kelurahan H", "Kelurahan I"],
@@ -31,9 +42,9 @@ const kelurahanList = {
 	"Pontianak Kota": ["Kelurahan P", "Kelurahan Q", "Kelurahan R"],
 };
 
-const HasilPage = () => {
-	const [allData, setAllData] = useState([]);
-	const [view, setView] = useState("total");
+const HasilPage: React.FC = () => {
+	const [allData, setAllData] = useState<VotingData[]>([]);
+	const [view, setView] = useState<"total" | "perKecamatan">("total");
 	const [selectedKecamatan, setSelectedKecamatan] = useState("");
 	const [selectedKelurahan, setSelectedKelurahan] = useState("");
 
@@ -45,9 +56,9 @@ const HasilPage = () => {
 	}, []);
 
 	const calculateVotes = (
-		candidateType,
-		kecamatan = null,
-		kelurahan = null
+		candidateType: "gubernurCandidates" | "walikotaCandidates",
+		kecamatan: string | null = null,
+		kelurahan: string | null = null
 	) => {
 		let filteredData = allData;
 		if (kecamatan) {
@@ -61,40 +72,36 @@ const HasilPage = () => {
 			);
 		}
 
-		const totalVotes = filteredData.reduce(
-			(total, tps) =>
-				total +
-				tps[candidateType].reduce(
-					(sum, votes) => sum + parseInt(votes || "0"),
-					0
-				),
-			0
-		);
-
 		const candidates =
 			candidateType === "gubernurCandidates"
 				? gubernurCandidates
 				: walikotaCandidates;
 
+		const results = candidates.map((candidate, index) => {
+			const votes = filteredData.reduce(
+				(sum, tps) => sum + parseInt(tps[candidateType][index] || "0"),
+				0
+			);
+			return { name: candidate, votes };
+		});
+
+		const totalVotes = results.reduce((sum, result) => sum + result.votes, 0);
+
 		return {
 			totalVotes,
-			results: candidates
-				.map((candidate, index) => {
-					const votes = filteredData.reduce(
-						(sum, tps) => sum + parseInt(tps[candidateType][index] || "0"),
-						0
-					);
-					return {
-						name: candidate,
-						votes: votes,
-						percentage: totalVotes > 0 ? (votes / totalVotes) * 100 : 0,
-					};
-				})
+			results: results
+				.map((result) => ({
+					...result,
+					percentage: totalVotes > 0 ? (result.votes / totalVotes) * 100 : 0,
+				}))
 				.sort((a, b) => b.votes - a.votes),
 		};
 	};
 
-	const renderMinimalistChart = (data, totalVotes) => (
+	const renderMinimalistChart = (
+		data: { name: string; votes: number; percentage: number }[],
+		totalVotes: number
+	) => (
 		<div className='w-full h-6 bg-gray-200 rounded-full overflow-hidden flex'>
 			{data.map((item, index) => (
 				<div
@@ -115,7 +122,7 @@ const HasilPage = () => {
 		</div>
 	);
 
-	const renderResultsForKecamatan = (kecamatan) => {
+	const renderResultsForKecamatan = (kecamatan: string) => {
 		const gubernurData = calculateVotes("gubernurCandidates", kecamatan);
 		const walikotaData = calculateVotes("walikotaCandidates", kecamatan);
 
@@ -131,7 +138,7 @@ const HasilPage = () => {
 					<h3 className='text-lg font-semibold mb-2 text-gray-800 dark:text-white'>
 						Gubernur dan Wakil Gubernur (Total: {gubernurData.totalVotes} suara)
 					</h3>
-					{renderMinimalistChart(gubernurData.results)}
+					{renderMinimalistChart(gubernurData.results, gubernurData.totalVotes)}
 					<div className='mt-2 space-y-1'>
 						{gubernurData.results.map((candidate, index) => (
 							<div
@@ -154,7 +161,7 @@ const HasilPage = () => {
 					<h3 className='text-lg font-semibold mb-2 mt-6 text-gray-800 dark:text-white'>
 						Walikota dan Wakil Walikota (Total: {walikotaData.totalVotes} suara)
 					</h3>
-					{renderMinimalistChart(walikotaData.results)}
+					{renderMinimalistChart(walikotaData.results, walikotaData.totalVotes)}
 					<div className='mt-2 space-y-1'>
 						{walikotaData.results.map((candidate, index) => (
 							<div
