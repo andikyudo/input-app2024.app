@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { tpsCoordinates } from "../../data/tpsCoordinates";
 
@@ -10,10 +10,25 @@ const MapWithNoSSR = dynamic(() => import("../../components/Map"), {
 
 export default function CariTPSPage() {
 	const [selectedTPS, setSelectedTPS] = useState("");
+	const [tpsLocation, setTpsLocation] = useState("");
 
 	const handleTPSChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		setSelectedTPS(event.target.value);
 	};
+
+	useEffect(() => {
+		if (selectedTPS) {
+			const tps = tpsCoordinates.find(
+				(tps) => tps.id.toString() === selectedTPS
+			);
+			if (tps) {
+				// Anda bisa menambahkan lebih banyak detail lokasi di sini jika tersedia
+				setTpsLocation(`Latitude: ${tps.lat}, Longitude: ${tps.lng}`);
+			}
+		} else {
+			setTpsLocation("");
+		}
+	}, [selectedTPS]);
 
 	const handleRouteToTPS = () => {
 		const selectedTPSData = tpsCoordinates.find(
@@ -26,7 +41,7 @@ export default function CariTPSPage() {
 	};
 
 	return (
-		<div className='w-full'>
+		<div className='w-full max-w-4xl mx-auto p-4'>
 			<h1 className='text-2xl font-bold mb-4 text-black dark:text-white'>
 				Cari Lokasi TPS
 			</h1>
@@ -48,16 +63,22 @@ export default function CariTPSPage() {
 			<div className='mt-4 relative' style={{ height: "400px" }}>
 				<MapWithNoSSR selectedTPS={selectedTPS} />
 			</div>
-			<div className='mt-4'>
-				{selectedTPS && (
+			{selectedTPS && (
+				<div className='mt-4 space-y-2'>
 					<button
 						onClick={handleRouteToTPS}
 						className='w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
 					>
-						Rute ke TPS
+						Rute ke TPS {selectedTPS}
 					</button>
-				)}
-			</div>
+					<div className='w-full p-4 bg-gray-100 dark:bg-gray-800 rounded shadow'>
+						<h3 className='font-semibold text-lg mb-2'>
+							Lokasi TPS {selectedTPS}
+						</h3>
+						<p>{tpsLocation}</p>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }

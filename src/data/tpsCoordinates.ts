@@ -6,7 +6,7 @@ export interface TPSCoordinate {
 }
 
 export const tpsCoordinates: TPSCoordinate[] = [
-	{ id: 1, name: "TPS 1", lat: -0.04164812873815405, lng: 109.3362177483 },
+	{ id: 1, name: "TPS 1", lat: -0.041580179928900056, lng: 109.33629050177385 },
 	{ id: 2, name: "TPS 2", lat: -0.0425493, lng: 109.323604 },
 	{ id: 3, name: "TPS 3", lat: -0.0425486, lng: 109.3237471 },
 	{ id: 4, name: "TPS 4", lat: -0.0426455, lng: 109.3240062 },
