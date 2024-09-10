@@ -16,22 +16,22 @@ export default function CariTPSPage() {
 	};
 
 	return (
-		<div className='container mx-auto px-4 py-24'>
-			{" "}
-			{/* Increased top padding */}
-			<h1 className='text-2xl font-bold mb-4'>Cari Lokasi TPS</h1>
+		<div className='w-full'>
+			<h1 className='text-2xl font-bold mb-4 text-black dark:text-white'>
+				Cari Lokasi TPS
+			</h1>
 			<div className='mb-4'>
-				<label
+				{/* <label
 					htmlFor='tps'
-					className='block text-sm font-medium text-gray-700 dark:text-gray-300'
+					className='block text-sm font-medium text-white dark:text-black'
 				>
 					Pilih TPS
-				</label>
+				</label> */}
 				<select
 					id='tps'
 					value={selectedTPS}
 					onChange={handleTPSChange}
-					className='mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white'
+					className='mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md bg-gray-700 dark:bg-gray-700 text-white dark:text-white'
 				>
 					<option value=''>Pilih TPS</option>
 					{tpsCoordinates.map((tps) => (
@@ -41,11 +41,9 @@ export default function CariTPSPage() {
 					))}
 				</select>
 			</div>
-			{selectedTPS && (
-				<div className='mt-4'>
-					<MapWithNoSSR selectedTPS={selectedTPS} />
-				</div>
-			)}
+			<div className='mt-4 relative z-0' style={{ height: "60vh" }}>
+				<MapWithNoSSR selectedTPS={selectedTPS} />
+			</div>
 		</div>
 	);
 }

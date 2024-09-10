@@ -35,12 +35,10 @@ const ClientWrapper = ({ children }: { children: React.ReactNode }) => {
 		<ThemeProvider attribute='class'>
 			<div className='min-h-screen flex flex-col'>
 				{isLoggedIn && pathname !== "/" && <Header />}
-				<main
-					className={`flex-grow ${
-						isLoggedIn && pathname !== "/" ? "pt-16" : ""
-					}`}
-				>
-					{children}
+				<main className='flex-grow flex items-center justify-center overflow-auto'>
+					<div className='w-full max-w-4xl px-4 py-8 bg-white dark:bg-black'>
+						{children}
+					</div>
 				</main>
 			</div>
 		</ThemeProvider>
