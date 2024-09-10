@@ -25,7 +25,7 @@ const walikotaCandidates = [
 
 const RecapPage = () => {
 	const [allData, setAllData] = useState([]);
-	const { theme } = useTheme();
+
 	const router = useRouter();
 
 	useEffect(() => {
