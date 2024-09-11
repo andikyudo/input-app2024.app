@@ -9,32 +9,8 @@ const MapWithNoSSR = dynamic(() => import("../../components/Map"), {
 });
 
 export default function CariTPSPage() {
-<<<<<<< HEAD
-	const [selectedTPS, setSelectedTPS] = useState("");
-	const [tpsLocation, setTpsLocation] = useState("");
-
-	useEffect(() => {
-		const savedTPS = localStorage.getItem("selectedTPS");
-		if (savedTPS) {
-			setSelectedTPS(savedTPS);
-		}
-	}, []);
-
-	const handleTPSChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		const newSelectedTPS = event.target.value;
-		setSelectedTPS(newSelectedTPS);
-		localStorage.setItem("selectedTPS", newSelectedTPS);
-	};
-
-	const handleClearSelection = () => {
-		setSelectedTPS("");
-		setTpsLocation("");
-		localStorage.removeItem("selectedTPS");
-	};
-=======
 	const [selectedTPS, setSelectedTPS] = useState<string[]>([]);
 	const [currentTPS, setCurrentTPS] = useState<string | null>(null);
->>>>>>> feature/search-tps
 
 	useEffect(() => {
 		const savedTPS = localStorage.getItem("selectedTPS");
@@ -83,54 +59,6 @@ export default function CariTPSPage() {
 	};
 
 	return (
-<<<<<<< HEAD
-		<div className='w-full max-w-4xl mx-auto p-4 mt-16'>
-			{" "}
-			{/* Tambahkan margin-top di sini */}
-			<h1 className='text-2xl font-bold mb-4 text-black dark:text-white'>
-				Cari Lokasi TPS
-			</h1>
-			<div className='mb-4'>
-				<select
-					id='tps'
-					value={selectedTPS}
-					onChange={handleTPSChange}
-					className='mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md bg-gray-700 dark:bg-gray-700 text-white dark:text-white'
-				>
-					<option value=''>Pilih TPS</option>
-					{tpsCoordinates.map((tps) => (
-						<option key={tps.id} value={tps.id.toString()}>
-							{tps.name}
-						</option>
-					))}
-				</select>
-			</div>
-			<div className='mt-4 relative' style={{ height: "400px" }}>
-				<MapWithNoSSR selectedTPS={selectedTPS} />
-			</div>
-			{selectedTPS && (
-				<div className='mt-4 space-y-2'>
-					<button
-						onClick={handleRouteToTPS}
-						className='w-full bg-emerald-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-					>
-						Rute ke TPS {selectedTPS}
-					</button>
-					<div className='w-full p-4 bg-white dark:bg-gray-800 rounded shadow border border-gray-200 dark:border-gray-700'>
-						<h3 className='font-semibold text-lg mb-2 text-black dark:text-white'>
-							Lokasi TPS {selectedTPS}
-						</h3>
-						<p className='text-gray-700 dark:text-gray-300 mb-2'>
-							{tpsLocation || "Memuat alamat..."}
-						</p>
-						<button
-							onClick={handleClearSelection}
-							className='text-sm text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300'
-						>
-							Hapus Pilihan TPS ini
-						</button>
-					</div>
-=======
 		<div className='w-full flex flex-col min-h-screen'>
 			<div className='flex-grow overflow-y-auto'>
 				<h1 className='text-2xl font-bold mb-4 text-gray-900 dark:text-white'>
@@ -157,7 +85,6 @@ export default function CariTPSPage() {
 							</option>
 						))}
 					</select>
->>>>>>> feature/search-tps
 				</div>
 				<div className='flex-grow' style={{ minHeight: "60vh" }}>
 					<MapWithNoSSR
