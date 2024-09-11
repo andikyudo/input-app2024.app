@@ -59,40 +59,41 @@ export default function CariTPSPage() {
 	};
 
 	return (
-		<div className='w-full'>
-			<h1 className='text-2xl font-bold mb-4 text-black dark:text-white'>
-				Cari Lokasi TPS
-			</h1>
-			<div className='mb-4'>
-				<select
-					id='tps'
-					value={currentTPS || ""}
-					onChange={handleTPSChange}
-					className='mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-black dark:text-white'
-				>
-					<option value=''>Pilih TPS</option>
-					{tpsCoordinates.map((tps) => (
-						<option
-							key={tps.id}
-							value={tps.id.toString()}
-							className={
-								selectedTPS.includes(tps.id.toString())
-									? "bg-yellow-200 dark:bg-yellow-700 font-bold"
-									: ""
-							}
-						>
-							{tps.name}
-						</option>
-					))}
-				</select>
-			</div>
-			<div className='mt-4 relative z-0' style={{ height: "60vh" }}>
-				<MapWithNoSSR
-					selectedTPS={selectedTPS}
-					currentTPS={currentTPS}
-					onRemoveTPS={handleRemoveTPS}
-					onSelectCurrentTPS={handleSelectCurrentTPS}
-				/>
+		<div className='w-full flex flex-col min-h-screen'>
+			<div className='flex-grow overflow-y-auto'>
+				<h1 className='text-2xl font-bold mb-4 text-gray-900 dark:text-white'>
+					Cari Lokasi TPS
+				</h1>
+				<div className='mb-4'>
+					<select
+						id='tps'
+						value={currentTPS || ""}
+						onChange={handleTPSChange}
+						className='mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+					>
+						<option value=''>Pilih TPS</option>
+						{tpsCoordinates.map((tps) => (
+							<option
+								key={tps.id}
+								value={tps.id.toString()}
+								className='flex items-center'
+							>
+								<span className='mr-2'>
+									{selectedTPS.includes(tps.id.toString()) ? "✓ " : ""}
+								</span>
+								{tps.name}
+							</option>
+						))}
+					</select>
+				</div>
+				<div className='flex-grow' style={{ minHeight: "60vh" }}>
+					<MapWithNoSSR
+						selectedTPS={selectedTPS}
+						currentTPS={currentTPS}
+						onRemoveTPS={handleRemoveTPS}
+						onSelectCurrentTPS={handleSelectCurrentTPS}
+					/>
+				</div>
 			</div>
 		</div>
 	);

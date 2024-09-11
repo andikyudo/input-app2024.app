@@ -136,7 +136,7 @@ const Map: React.FC<MapProps> = ({
 					</div>
 					<button
 						onClick={() => onRemoveTPS(currentTPS)}
-						className='mt-2 text-red-500 hover:text-red-700'
+						className='mt-2 text-red-500 hover:text-red-700 border border-red-500 hover:border-red-700 rounded px-2 py-1 text-sm'
 					>
 						Hapus TPS ini
 					</button>
