@@ -8,95 +8,92 @@ const MapWithNoSSR = dynamic(() => import("../../components/Map"), {
 	ssr: false,
 });
 
-async function getAddress(lat: number, lon: number): Promise<string> {
-	try {
-		const response = await fetch(
-			`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`
-		);
-		const data = await response.json();
-		return data.display_name || "Alamat tidak ditemukan";
-	} catch (error) {
-		console.error("Error fetching address:", error);
-		return "Gagal mendapatkan alamat";
-	}
-}
-
 export default function CariTPSPage() {
-	const [selectedTPS, setSelectedTPS] = useState("");
-	const [tpsLocation, setTpsLocation] = useState("");
-
-	const handleTPSChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		setSelectedTPS(event.target.value);
-	};
+	const [selectedTPS, setSelectedTPS] = useState<string[]>([]);
+	const [currentTPS, setCurrentTPS] = useState<string | null>(null);
 
 	useEffect(() => {
-		async function fetchAddress() {
-			if (selectedTPS) {
-				const tps = tpsCoordinates.find(
-					(tps) => tps.id.toString() === selectedTPS
+		const savedTPS = localStorage.getItem("selectedTPS");
+		if (savedTPS) {
+			try {
+				const parsedTPS = JSON.parse(savedTPS);
+				setSelectedTPS(Array.isArray(parsedTPS) ? parsedTPS : []);
+				setCurrentTPS(
+					Array.isArray(parsedTPS) && parsedTPS.length > 0 ? parsedTPS[0] : null
 				);
-				if (tps) {
-					const address = await getAddress(tps.lat, tps.lng);
-					setTpsLocation(address);
-				}
-			} else {
-				setTpsLocation("");
+			} catch {
+				setSelectedTPS([]);
+				setCurrentTPS(null);
 			}
 		}
-		fetchAddress();
-	}, [selectedTPS]);
+	}, []);
 
-	const handleRouteToTPS = () => {
-		const selectedTPSData = tpsCoordinates.find(
-			(tps) => tps.id.toString() === selectedTPS
-		);
-		if (selectedTPSData) {
-			const url = `https://www.google.com/maps/dir/?api=1&destination=${selectedTPSData.lat},${selectedTPSData.lng}`;
-			window.open(url, "_blank");
+	const handleTPSChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+		const value = event.target.value;
+		if (value) {
+			setSelectedTPS((prev) => {
+				const newSelected = Array.isArray(prev) ? [...prev] : [];
+				if (!newSelected.includes(value)) {
+					newSelected.push(value);
+				}
+				localStorage.setItem("selectedTPS", JSON.stringify(newSelected));
+				return newSelected;
+			});
+			setCurrentTPS(value);
 		}
+	};
+
+	const handleRemoveTPS = (tps: string) => {
+		setSelectedTPS((prev) => {
+			const newSelected = Array.isArray(prev)
+				? prev.filter((id) => id !== tps)
+				: [];
+			localStorage.setItem("selectedTPS", JSON.stringify(newSelected));
+			return newSelected;
+		});
+		setCurrentTPS((prev) => (prev === tps ? null : prev));
+	};
+
+	const handleSelectCurrentTPS = (tps: string) => {
+		setCurrentTPS(tps);
 	};
 
 	return (
-		<div className='w-full max-w-4xl mx-auto p-4'>
+		<div className='w-full'>
 			<h1 className='text-2xl font-bold mb-4 text-black dark:text-white'>
 				Cari Lokasi TPS
 			</h1>
 			<div className='mb-4'>
 				<select
 					id='tps'
-					value={selectedTPS}
+					value={currentTPS || ""}
 					onChange={handleTPSChange}
-					className='mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md bg-gray-700 dark:bg-gray-700 text-white dark:text-white'
+					className='mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-black dark:text-white'
 				>
 					<option value=''>Pilih TPS</option>
 					{tpsCoordinates.map((tps) => (
-						<option key={tps.id} value={tps.id.toString()}>
+						<option
+							key={tps.id}
+							value={tps.id.toString()}
+							className={
+								selectedTPS.includes(tps.id.toString())
+									? "bg-yellow-200 dark:bg-yellow-700 font-bold"
+									: ""
+							}
+						>
 							{tps.name}
 						</option>
 					))}
 				</select>
 			</div>
-			<div className='mt-4 relative' style={{ height: "400px" }}>
-				<MapWithNoSSR selectedTPS={selectedTPS} />
+			<div className='mt-4 relative z-0' style={{ height: "60vh" }}>
+				<MapWithNoSSR
+					selectedTPS={selectedTPS}
+					currentTPS={currentTPS}
+					onRemoveTPS={handleRemoveTPS}
+					onSelectCurrentTPS={handleSelectCurrentTPS}
+				/>
 			</div>
-			{selectedTPS && (
-				<div className='mt-4 space-y-2'>
-					<button
-						onClick={handleRouteToTPS}
-						className='w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-					>
-						Rute ke TPS {selectedTPS}
-					</button>
-					<div className='w-full p-4 bg-white dark:bg-gray-800 rounded shadow border border-gray-200 dark:border-gray-700'>
-						<h3 className='font-semibold text-lg mb-2 text-black dark:text-white'>
-							Lokasi TPS {selectedTPS}
-						</h3>
-						<p className='text-gray-700 dark:text-gray-300'>
-							{tpsLocation || "Memuat alamat..."}
-						</p>
-					</div>
-				</div>
-			)}
 		</div>
 	);
 }
