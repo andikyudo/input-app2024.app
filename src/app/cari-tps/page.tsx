@@ -8,20 +8,8 @@ const MapWithNoSSR = dynamic(() => import("../../components/Map"), {
 	ssr: false,
 });
 
-async function getAddress(lat: number, lon: number): Promise<string> {
-	try {
-		const response = await fetch(
-			`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`
-		);
-		const data = await response.json();
-		return data.display_name || "Alamat tidak ditemukan";
-	} catch (error) {
-		console.error("Error fetching address:", error);
-		return "Gagal mendapatkan alamat";
-	}
-}
-
 export default function CariTPSPage() {
+<<<<<<< HEAD
 	const [selectedTPS, setSelectedTPS] = useState("");
 	const [tpsLocation, setTpsLocation] = useState("");
 
@@ -43,35 +31,59 @@ export default function CariTPSPage() {
 		setTpsLocation("");
 		localStorage.removeItem("selectedTPS");
 	};
+=======
+	const [selectedTPS, setSelectedTPS] = useState<string[]>([]);
+	const [currentTPS, setCurrentTPS] = useState<string | null>(null);
+>>>>>>> feature/search-tps
 
 	useEffect(() => {
-		async function fetchAddress() {
-			if (selectedTPS) {
-				const tps = tpsCoordinates.find(
-					(tps) => tps.id.toString() === selectedTPS
+		const savedTPS = localStorage.getItem("selectedTPS");
+		if (savedTPS) {
+			try {
+				const parsedTPS = JSON.parse(savedTPS);
+				setSelectedTPS(Array.isArray(parsedTPS) ? parsedTPS : []);
+				setCurrentTPS(
+					Array.isArray(parsedTPS) && parsedTPS.length > 0 ? parsedTPS[0] : null
 				);
-				if (tps) {
-					const address = await getAddress(tps.lat, tps.lng);
-					setTpsLocation(address);
-				}
-			} else {
-				setTpsLocation("");
+			} catch {
+				setSelectedTPS([]);
+				setCurrentTPS(null);
 			}
 		}
-		fetchAddress();
-	}, [selectedTPS]);
+	}, []);
 
-	const handleRouteToTPS = () => {
-		const selectedTPSData = tpsCoordinates.find(
-			(tps) => tps.id.toString() === selectedTPS
-		);
-		if (selectedTPSData) {
-			const url = `https://www.google.com/maps/dir/?api=1&destination=${selectedTPSData.lat},${selectedTPSData.lng}`;
-			window.open(url, "_blank");
+	const handleTPSChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+		const value = event.target.value;
+		if (value) {
+			setSelectedTPS((prev) => {
+				const newSelected = Array.isArray(prev) ? [...prev] : [];
+				if (!newSelected.includes(value)) {
+					newSelected.push(value);
+				}
+				localStorage.setItem("selectedTPS", JSON.stringify(newSelected));
+				return newSelected;
+			});
+			setCurrentTPS(value);
 		}
 	};
 
+	const handleRemoveTPS = (tps: string) => {
+		setSelectedTPS((prev) => {
+			const newSelected = Array.isArray(prev)
+				? prev.filter((id) => id !== tps)
+				: [];
+			localStorage.setItem("selectedTPS", JSON.stringify(newSelected));
+			return newSelected;
+		});
+		setCurrentTPS((prev) => (prev === tps ? null : prev));
+	};
+
+	const handleSelectCurrentTPS = (tps: string) => {
+		setCurrentTPS(tps);
+	};
+
 	return (
+<<<<<<< HEAD
 		<div className='w-full max-w-4xl mx-auto p-4 mt-16'>
 			{" "}
 			{/* Tambahkan margin-top di sini */}
@@ -118,8 +130,44 @@ export default function CariTPSPage() {
 							Hapus Pilihan TPS ini
 						</button>
 					</div>
+=======
+		<div className='w-full flex flex-col min-h-screen'>
+			<div className='flex-grow overflow-y-auto'>
+				<h1 className='text-2xl font-bold mb-4 text-gray-900 dark:text-white'>
+					Cari Lokasi TPS
+				</h1>
+				<div className='mb-4'>
+					<select
+						id='tps'
+						value={currentTPS || ""}
+						onChange={handleTPSChange}
+						className='mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+					>
+						<option value=''>Pilih TPS</option>
+						{tpsCoordinates.map((tps) => (
+							<option
+								key={tps.id}
+								value={tps.id.toString()}
+								className='flex items-center'
+							>
+								<span className='mr-2'>
+									{selectedTPS.includes(tps.id.toString()) ? "✓ " : ""}
+								</span>
+								{tps.name}
+							</option>
+						))}
+					</select>
+>>>>>>> feature/search-tps
 				</div>
-			)}
+				<div className='flex-grow' style={{ minHeight: "60vh" }}>
+					<MapWithNoSSR
+						selectedTPS={selectedTPS}
+						currentTPS={currentTPS}
+						onRemoveTPS={handleRemoveTPS}
+						onSelectCurrentTPS={handleSelectCurrentTPS}
+					/>
+				</div>
+			</div>
 		</div>
 	);
 }

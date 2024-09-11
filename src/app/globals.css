@@ -53,8 +53,8 @@ body {
 
 .pulsing-dot {
 	border-radius: 50%;
-	height: 20px;
-	width: 20px;
+	height: 15px;
+	width: 15px;
 	transform-origin: center center;
 	animation: pulse 1.5s ease infinite;
 }
@@ -123,4 +123,11 @@ main {
 .leaflet-top,
 .leaflet-bottom {
 	z-index: 8 !important;
+}
+
+@media (max-width: 640px) {
+	select option {
+		background-color: inherit !important;
+		color: inherit !important;
+	}
 }
