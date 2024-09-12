@@ -1,20 +1,87 @@
-// File: src/utils/authData.ts
+import { supabase } from "../utils/supabase";
 
-interface User {
-  username: string;
-  password: string;
+export interface User {
+	id: string;
+	nrp: string;
+	nama: string;
+	no_handphone: string;
 }
 
-export const authData: User[] = [
-  { username: "0001", password: "1001" },
-  { username: "0002", password: "1002" },
-  { username: "8510", password: "1426" },
-  // ... Tambahkan lebih banyak pengguna sesuai kebutuhan
-  { username: "0900", password: "1900" },
-];
+export const login = async (
+	nrp: string,
+	noHandphone: string
+): Promise<{ success: boolean; user?: User; message?: string }> => {
+	try {
+		const { data, error } = await supabase
+			.from("users")
+			.select("*")
+			.eq("nrp", nrp)
+			.eq("no_handphone", noHandphone)
+			.single();
 
-export function authenticateUser(username: string, password: string): boolean {
-  return authData.some(
-    (user) => user.username === username && user.password === password,
-  );
-}
+		if (error) throw error;
+
+		if (data) {
+			// Update user_sessions
+			const { error: sessionError } = await supabase
+				.from("user_sessions")
+				.upsert(
+					{
+						user_id: data.id,
+						status: "logged_in",
+						last_login: new Date().toISOString(),
+					},
+					{
+						onConflict: "user_id",
+					}
+				);
+
+			if (sessionError) throw sessionError;
+
+			return { success: true, user: data };
+		} else {
+			return { success: false, message: "NRP atau No. Handphone tidak valid" };
+		}
+	} catch (error) {
+		console.error("Login error:", error);
+		return { success: false, message: "Terjadi kesalahan saat login" };
+	}
+};
+
+export const logout = async (
+	userId: string
+): Promise<{ success: boolean; message?: string }> => {
+	try {
+		const { error } = await supabase
+			.from("user_sessions")
+			.update({
+				status: "logged_out",
+				last_logout: new Date().toISOString(),
+			})
+			.eq("user_id", userId);
+
+		if (error) throw error;
+
+		return { success: true };
+	} catch (error) {
+		console.error("Logout error:", error);
+		return { success: false, message: "Terjadi kesalahan saat logout" };
+	}
+};
+
+export const isUserLoggedIn = async (userId: string): Promise<boolean> => {
+	try {
+		const { data, error } = await supabase
+			.from("user_sessions")
+			.select("status")
+			.eq("user_id", userId)
+			.single();
+
+		if (error) throw error;
+
+		return data?.status === "logged_in";
+	} catch (error) {
+		console.error("Error checking user login status:", error);
+		return false;
+	}
+};
