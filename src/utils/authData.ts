@@ -12,34 +12,65 @@ export const login = async (
 	noHandphone: string
 ): Promise<{ success: boolean; user?: User; message?: string }> => {
 	try {
-		const { data, error } = await supabase
+		console.log(
+			`Attempting login with NRP: ${nrp} and No. Handphone: ${noHandphone}`
+		);
+
+		const { data: userData, error: userError } = await supabase
 			.from("users")
 			.select("*")
 			.eq("nrp", nrp)
 			.eq("no_handphone", noHandphone)
 			.single();
 
-		if (error) throw error;
+		if (userError) {
+			console.error("User query error:", userError);
+			throw userError;
+		}
 
-		if (data) {
-			// Update user_sessions
-			const { error: sessionError } = await supabase
+		if (userData) {
+			console.log("User found:", userData);
+
+			const { data: sessionData, error: sessionError } = await supabase
 				.from("user_sessions")
-				.upsert(
-					{
-						user_id: data.id,
-						status: "logged_in",
-						last_login: new Date().toISOString(),
-					},
-					{
-						onConflict: "user_id",
-					}
-				);
+				.select("*")
+				.eq("user_id", userData.id)
+				.single();
 
-			if (sessionError) throw sessionError;
+			if (sessionError && sessionError.code !== "PGRST116") {
+				console.error("Session query error:", sessionError);
+				throw sessionError;
+			}
 
-			return { success: true, user: data };
+			const sessionUpdate = {
+				user_id: userData.id,
+				status: "logged_in",
+				last_login: new Date().toISOString(),
+			};
+
+			let upsertResult;
+			if (sessionData) {
+				console.log("Updating existing session");
+				upsertResult = await supabase
+					.from("user_sessions")
+					.update(sessionUpdate)
+					.eq("user_id", userData.id);
+			} else {
+				console.log("Inserting new session");
+				upsertResult = await supabase
+					.from("user_sessions")
+					.insert(sessionUpdate);
+			}
+
+			if (upsertResult.error) {
+				console.error("Session upsert error:", upsertResult.error);
+				throw upsertResult.error;
+			}
+
+			console.log("Login successful");
+			return { success: true, user: userData };
 		} else {
+			console.log("No user found with provided credentials");
 			return { success: false, message: "NRP atau No. Handphone tidak valid" };
 		}
 	} catch (error) {
@@ -47,7 +78,6 @@ export const login = async (
 		return { success: false, message: "Terjadi kesalahan saat login" };
 	}
 };
-
 export const logout = async (
 	userId: string
 ): Promise<{ success: boolean; message?: string }> => {

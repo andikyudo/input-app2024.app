@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ToggleSwitch from "./ToggleSwitch";
 import { Menu, X, User } from "lucide-react";
+import { logout } from "../utils/authData";
 
 const Header = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,10 +17,18 @@ const Header = () => {
 		setUserName(user.nama || "");
 	}, []);
 
-	const handleLogout = () => {
-		localStorage.removeItem("user");
-		window.dispatchEvent(new Event("storage"));
-		router.push("/");
+	const handleLogout = async () => {
+		const user = JSON.parse(localStorage.getItem("user") || "{}");
+		if (user.id) {
+			const result = await logout(user.id);
+			if (result.success) {
+				localStorage.removeItem("user");
+				window.dispatchEvent(new Event("storage"));
+				router.push("/");
+			} else {
+				console.error("Logout failed:", result.message);
+			}
+		}
 	};
 
 	const toggleMenu = () => {
