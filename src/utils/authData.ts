@@ -31,43 +31,26 @@ export const login = async (
 		if (userData) {
 			console.log("User found:", userData);
 
-			const { data: sessionData, error: sessionError } = await supabase
-				.from("user_sessions")
-				.select("*")
-				.eq("user_id", userData.id)
-				.single();
-
-			if (sessionError && sessionError.code !== "PGRST116") {
-				console.error("Session query error:", sessionError);
-				throw sessionError;
-			}
-
 			const sessionUpdate = {
 				user_id: userData.id,
 				status: "logged_in",
 				last_login: new Date().toISOString(),
+				user_nrp: userData.nrp, // Tambahkan ini
+				user_nama: userData.nama, // Tambahkan ini
 			};
 
-			let upsertResult;
-			if (sessionData) {
-				console.log("Updating existing session");
-				upsertResult = await supabase
-					.from("user_sessions")
-					.update(sessionUpdate)
-					.eq("user_id", userData.id);
-			} else {
-				console.log("Inserting new session");
-				upsertResult = await supabase
-					.from("user_sessions")
-					.insert(sessionUpdate);
+			const { data: sessionData, error: upsertError } = await supabase
+				.from("user_sessions")
+				.upsert(sessionUpdate, { onConflict: "user_id" })
+				.select()
+				.single();
+
+			if (upsertError) {
+				console.error("Session upsert error:", upsertError);
+				throw upsertError;
 			}
 
-			if (upsertResult.error) {
-				console.error("Session upsert error:", upsertResult.error);
-				throw upsertResult.error;
-			}
-
-			console.log("Login successful");
+			console.log("Login successful, session data:", sessionData);
 			return { success: true, user: userData };
 		} else {
 			console.log("No user found with provided credentials");
@@ -78,6 +61,7 @@ export const login = async (
 		return { success: false, message: "Terjadi kesalahan saat login" };
 	}
 };
+
 export const logout = async (
 	userId: string
 ): Promise<{ success: boolean; message?: string }> => {
