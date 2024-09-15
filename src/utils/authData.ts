@@ -25,7 +25,7 @@ export const login = async (
 
 		if (userError) {
 			console.error("User query error:", userError);
-			throw userError;
+			return { success: false, message: "NRP atau No. Handphone tidak valid" };
 		}
 
 		if (userData) {
@@ -35,22 +35,20 @@ export const login = async (
 				user_id: userData.id,
 				status: "logged_in",
 				last_login: new Date().toISOString(),
-				user_nrp: userData.nrp, // Tambahkan ini
-				user_nama: userData.nama, // Tambahkan ini
+				user_nrp: userData.nrp,
+				user_nama: userData.nama,
 			};
 
-			const { data: sessionData, error: upsertError } = await supabase
+			const { error: upsertError } = await supabase
 				.from("user_sessions")
-				.upsert(sessionUpdate, { onConflict: "user_id" })
-				.select()
-				.single();
+				.upsert(sessionUpdate, { onConflict: "user_id" });
 
 			if (upsertError) {
 				console.error("Session upsert error:", upsertError);
 				throw upsertError;
 			}
 
-			console.log("Login successful, session data:", sessionData);
+			console.log("Login successful");
 			return { success: true, user: userData };
 		} else {
 			console.log("No user found with provided credentials");
@@ -60,6 +58,45 @@ export const login = async (
 		console.error("Login error:", error);
 		return { success: false, message: "Terjadi kesalahan saat login" };
 	}
+};
+
+export const saveUserLocation = async (userId: string): Promise<boolean> => {
+	return new Promise((resolve) => {
+		if (!navigator.geolocation) {
+			console.error("Geolocation is not supported by this browser.");
+			resolve(false);
+			return;
+		}
+
+		navigator.geolocation.getCurrentPosition(
+			async (position) => {
+				try {
+					const { latitude, longitude } = position.coords;
+					const { error } = await supabase.from("user_locations").upsert(
+						{
+							user_id: userId,
+							latitude,
+							longitude,
+							updated_at: new Date().toISOString(),
+						},
+						{ onConflict: "user_id" }
+					);
+
+					if (error) throw error;
+					console.log("User location saved successfully");
+					resolve(true);
+				} catch (error) {
+					console.error("Error saving user location:", error);
+					resolve(false);
+				}
+			},
+			(error) => {
+				console.error("Error getting location:", error);
+				resolve(false);
+			},
+			{ timeout: 10000, maximumAge: 0, enableHighAccuracy: true }
+		);
+	});
 };
 
 export const logout = async (

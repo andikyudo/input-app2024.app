@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ToggleSwitch from "../components/ToggleSwitch";
 import { Info, AlertCircle } from "lucide-react";
-import { login } from "../utils/authData";
+import { login, saveUserLocation } from "../utils/authData";
 
 type NumericInputProps = {
 	value: string;
@@ -92,6 +92,9 @@ const LoginPage: React.FC = () => {
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [showTooltip, setShowTooltip] = useState(false);
+	const [locationStatus, setLocationStatus] = useState<
+		"idle" | "requesting" | "success" | "error"
+	>("idle");
 	const router = useRouter();
 
 	const handleLogin = async () => {
@@ -101,9 +104,16 @@ const LoginPage: React.FC = () => {
 
 			const result = await login(nrp, noHandphone);
 
-			if (result.success) {
+			if (result.success && result.user) {
 				localStorage.setItem("user", JSON.stringify(result.user));
 				window.dispatchEvent(new Event("storage"));
+
+				// Request location after successful login
+				setLocationStatus("requesting");
+				const locationSaved = await saveUserLocation(result.user.id);
+				setLocationStatus(locationSaved ? "success" : "error");
+
+				// Navigate to input page regardless of location status
 				void router.push("/input");
 			} else {
 				setError(result.message || "Terjadi kesalahan saat login");
@@ -175,6 +185,20 @@ const LoginPage: React.FC = () => {
 					</button>
 				</div>
 
+				{locationStatus === "requesting" && (
+					<div className='mt-4 text-yellow-500'>Meminta akses lokasi...</div>
+				)}
+
+				{locationStatus === "success" && (
+					<div className='mt-4 text-green-500'>Lokasi berhasil disimpan</div>
+				)}
+
+				{locationStatus === "error" && (
+					<div className='mt-4 text-red-500'>
+						Gagal menyimpan lokasi. Aplikasi akan tetap berfungsi.
+					</div>
+				)}
+
 				<div className='mt-8 text-center'>
 					<button
 						onClick={() => setShowTooltip(!showTooltip)}
@@ -200,6 +224,4 @@ const LoginPage: React.FC = () => {
 	);
 };
 
-export default function Home() {
-	return <LoginPage />;
-}
+export default LoginPage;
