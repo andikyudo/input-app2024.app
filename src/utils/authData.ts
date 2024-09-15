@@ -61,40 +61,49 @@ export const login = async (
 };
 
 export const saveUserLocation = async (userId: string): Promise<boolean> => {
-	return new Promise((resolve) => {
-		if (!navigator.geolocation) {
-			console.error("Geolocation is not supported by this browser.");
-			resolve(false);
-			return;
-		}
+	if (!("geolocation" in navigator)) {
+		console.error("Geolocation tidak didukung oleh browser ini.");
+		return false;
+	}
 
+	return new Promise((resolve) => {
 		navigator.geolocation.getCurrentPosition(
 			async (position) => {
 				try {
 					const { latitude, longitude } = position.coords;
-					const { error } = await supabase.from("user_locations").upsert(
+					console.log("Lokasi diperoleh:", { latitude, longitude });
+
+					const { data, error } = await supabase.from("user_locations").upsert(
 						{
-							user_id: userId,
-							latitude,
-							longitude,
+							username: userId, // Sesuaikan dengan struktur tabel Anda
+							lat: latitude,
+							lng: longitude,
 							updated_at: new Date().toISOString(),
 						},
-						{ onConflict: "user_id" }
+						{ onConflict: "username" }
 					);
 
-					if (error) throw error;
-					console.log("User location saved successfully");
-					resolve(true);
+					if (error) {
+						console.error("Error menyimpan lokasi ke Supabase:", error);
+						resolve(false);
+					} else {
+						console.log("Lokasi berhasil disimpan:", data);
+						resolve(true);
+					}
 				} catch (error) {
-					console.error("Error saving user location:", error);
+					console.error("Error umum saat menyimpan lokasi:", error);
 					resolve(false);
 				}
 			},
 			(error) => {
-				console.error("Error getting location:", error);
+				console.error("Error mendapatkan lokasi:", error.message);
 				resolve(false);
 			},
-			{ timeout: 10000, maximumAge: 0, enableHighAccuracy: true }
+			{
+				enableHighAccuracy: true,
+				timeout: 5000,
+				maximumAge: 0,
+			}
 		);
 	});
 };

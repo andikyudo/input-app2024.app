@@ -104,34 +104,38 @@ const LoginPage: React.FC = () => {
 			setLoading(true);
 			setError("");
 
-			const result = await login(nrp, noHandphone);
+			try {
+				const result = await login(nrp, noHandphone);
 
-			if (result.success && result.user) {
-				localStorage.setItem("user", JSON.stringify(result.user));
-				window.dispatchEvent(new Event("storage"));
+				if (result.success && result.user) {
+					localStorage.setItem("user", JSON.stringify(result.user));
+					window.dispatchEvent(new Event("storage"));
 
-				// Request location after successful login
-				setLocationStatus("requesting");
-				const locationSaved = await saveUserLocation(result.user.id);
-				setLocationStatus(locationSaved ? "success" : "error");
+					// Request location after successful login
+					setLocationStatus("requesting");
+					console.log("Memulai proses pengambilan lokasi...");
+					const locationSaved = await saveUserLocation(result.user.id);
+					setLocationStatus(locationSaved ? "success" : "error");
+					console.log(
+						"Status penyimpanan lokasi:",
+						locationSaved ? "berhasil" : "gagal"
+					);
 
-				// Navigate to input page regardless of location status
-				void router.push("/input");
-			} else {
-				setError(result.message || "Terjadi kesalahan saat login");
+					// Navigate to input page regardless of location status
+					void router.push("/input");
+				} else {
+					setError(result.message || "Terjadi kesalahan saat login");
+				}
+			} catch (error) {
+				console.error("Error saat proses login:", error);
+				setError("Terjadi kesalahan yang tidak terduga. Silakan coba lagi.");
+			} finally {
+				setLoading(false);
 			}
-
-			setLoading(false);
 		} else {
 			setError("Panjang NRP atau No. Handphone tidak sesuai");
 		}
 	};
-
-	useEffect(() => {
-		if (nrp.length === 8 && noHandphone.length === 12) {
-			handleLogin();
-		}
-	}, [nrp, noHandphone]);
 
 	return (
 		<div className='flex flex-col min-h-screen items-center justify-center bg-gray-900 transition-colors duration-300 relative p-4'>
