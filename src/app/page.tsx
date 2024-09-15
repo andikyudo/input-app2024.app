@@ -23,7 +23,7 @@ const NumericInput: React.FC<NumericInputProps> = ({
 	maxLength,
 	onComplete,
 }) => {
-	const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+	const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
 	useEffect(() => {
 		inputRefs.current = inputRefs.current.slice(0, maxLength);
@@ -66,7 +66,9 @@ const NumericInput: React.FC<NumericInputProps> = ({
 				{[...Array(maxLength)].map((_, index) => (
 					<div key={index} className='relative'>
 						<input
-							ref={(el) => (inputRefs.current[index] = el)}
+							ref={(el) => {
+								inputRefs.current[index] = el;
+							}}
 							type='text'
 							maxLength={1}
 							value={value[index] || ""}
