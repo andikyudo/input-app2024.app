@@ -61,8 +61,9 @@ export const login = async (
 };
 
 export const saveUserLocation = async (userId: string): Promise<boolean> => {
+	console.log("Memulai saveUserLocation untuk userId:", userId);
 	if (!("geolocation" in navigator)) {
-		console.error("Geolocation tidak didukung oleh browser ini.");
+		console.error("Geolokasi tidak didukung oleh browser ini.");
 		return false;
 	}
 
@@ -75,7 +76,7 @@ export const saveUserLocation = async (userId: string): Promise<boolean> => {
 
 					const { data, error } = await supabase.from("user_locations").upsert(
 						{
-							username: userId, // Sesuaikan dengan struktur tabel Anda
+							username: userId,
 							lat: latitude,
 							lng: longitude,
 							updated_at: new Date().toISOString(),
@@ -101,7 +102,7 @@ export const saveUserLocation = async (userId: string): Promise<boolean> => {
 			},
 			{
 				enableHighAccuracy: true,
-				timeout: 5000,
+				timeout: 10000,
 				maximumAge: 0,
 			}
 		);
